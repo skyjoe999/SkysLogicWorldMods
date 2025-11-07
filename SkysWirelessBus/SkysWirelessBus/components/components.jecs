@@ -1,0 +1,24 @@
+#################
+# Miscellaneous #
+#################
+WirelessBus:
+    column: "Miscellaneous"
+    category: "Routing"
+    clientCode: SkysWirelessBus.Client.ClientCode.WirelessBus
+    logicCode: SkysWirelessBus.Server.LogicCode.WirelessBus
+    prefabGenerator: SkysWirelessBus.Client.ClientCode.DynamicGenerators.WirelessBusPrefabGenerator
+    #placingRulesGenerator: SkysWirelessBus..ClientCode.DynamicGenerators.WirelessBusPlacingRulesGenerator
+    placingRules:
+        secondaryGridPositions:
+            - (1/6, 0.5)
+            - (3/6, 0.5)
+            - (5/6, 0.5)
+        primaryEdgePositions:
+            - (0.5, 0)
+        secondaryEdgePositions:
+            - (1/6, 0)
+            - (3/6, 0)
+            - (5/6, 0)
+        gridPositionsAreRelative: true
+        allowFineRotation: false
+        gridPlacingDimensions: (1, 2)
