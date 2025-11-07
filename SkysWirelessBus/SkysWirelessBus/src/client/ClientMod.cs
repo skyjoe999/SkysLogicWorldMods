@@ -18,7 +18,7 @@ public class SkysWirelessBus_ClientMod : ClientMod
             }
             catch (Exception e)
             {
-                Logger.Error("Failed to initialize Eccs Component Edit GUIs:");
+                Logger.Error("Failed to initialize Skys Wireless Bus GUIs:");
                 SceneAndNetworkManager.TriggerErrorScreen(e);
             }
         };
