@@ -1,12 +1,11 @@
 using LICC;
 using LogicAPI.Server.Components;
-using SkysWirelessBus.Server.LogicCode;
 using System.Collections.Generic;
 
 namespace SkysWirelessBus.Server.Wireless;
 public static class WirelessTracker
 {
-    private static readonly IDictionary<(string, int), (IWireless,IWireless)> ChannelDict = new Dictionary<(string, int), (IWireless, IWireless)>();
+    private static readonly Dictionary<(string, int), (IWireless,IWireless)> ChannelDict = [];
     
     [Command("WirelessTracking", Description = "List all currently tracked wireless connections.")]
     public static void WirelessTracking()
