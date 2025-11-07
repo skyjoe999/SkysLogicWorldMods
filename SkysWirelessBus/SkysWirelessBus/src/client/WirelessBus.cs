@@ -47,12 +47,11 @@ public class WirelessBus : ComponentClientCode<IWirelessBusData>, IColorableClie
             _labelTransform.sizeDelta = new Vector2(InputCount / 3f, 2f / 3f) * 0.3f;
             SetDecorationPosition(0, new Vector3(InputCount / 3f - 1f / 6f, 2f / 3f + 0.001f, 1f / 2f) * 0.3f);
             SetDecorationRotation(0, Quaternion.Euler(90f, -180f, 0f));
-
         }
 
     }
 
-    protected override void SetDataDefaultValues() =>Data.Initialize();
+    protected override void SetDataDefaultValues() => Data.Initialize();
         
 
     protected override IDecoration[] GenerateDecorations(Transform parentToCreateDecorationsUnder)
