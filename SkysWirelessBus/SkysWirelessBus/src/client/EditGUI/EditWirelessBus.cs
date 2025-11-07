@@ -108,9 +108,4 @@ public class EditWirelessBus : EditComponentMenu<IWirelessBusData>, IAssignMyFie
 		busNameInput.text = data.BusName ?? "";
             valueSlider.SetValueWithoutNotify(base.ComponentsBeingEdited.First().Component.Data.InputCount);
         }
-	
-	protected override void OnRun()
-	{
-		
-	}
 }
