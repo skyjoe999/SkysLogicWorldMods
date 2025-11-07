@@ -62,7 +62,8 @@ public class LabelSocket : ComponentClientCode<Label.IData>, IColorableClientCod
                 LocalPosition = new Vector3(0.5f - 0.3333f, Height + 0.001f, -0.5f + 0.3333f) * 0.3f,
                 LocalRotation = Quaternion.Euler(90f, -90f, 0f),
                 DecorationObject = gameObject,
-                IncludeInModels = true
+                IncludeInModels = true,
+                ShouldBeOutlined = false,
             }
         ];
     }
