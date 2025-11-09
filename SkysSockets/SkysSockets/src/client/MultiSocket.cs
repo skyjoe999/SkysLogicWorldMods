@@ -14,6 +14,7 @@ public class MultiSocket : ComponentClientCode<MultiSocket.IData>, IVirtualSocke
     }
 
     void IVirtualSocketHolder.SetBlockColor(GpuColor color, int blockIndex) => base.SetBlockColor(color, blockIndex);
+    protected override void FrameUpdate() => ((IVirtualSocketHolder) this).frameUpdate();
 
     public IEnumerable<int> BlockIndicies => Enumerable.Range(0, InputCount);
     public IEnumerable<int> InputIndicies => Enumerable.Range(0, InputCount);

@@ -19,7 +19,7 @@ public interface IVirtualSocketHolder : IComponentClientCode
     IEnumerable<int> InputIndicies { get; }
     void SetBlockColor(GpuColor color, int blockIndex = 0);
 
-    public void FrameUpdate()
+    public void frameUpdate()
     {
         foreach (var (iblock, iinput) in BlockIndicies.Zip(InputIndicies, (a, b) => (a, b)))
             SetBlockColor(GetInputState(iinput) ? Colors.SnappingPegOn : Colors.SnappingPegOff, iblock);
