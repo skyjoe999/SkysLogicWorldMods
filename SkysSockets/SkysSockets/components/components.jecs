@@ -1,0 +1,20 @@
+MultiSocket:
+    column: "Miscellaneous"
+    category: "Routing"
+    prefabGenerator: SkysSockets.Client.ClientCode.DynamicGenerators.MultiSocketPrefabGenerator
+    clientCode: SkysSockets.Client.ClientCode.MultiSocket
+    logicCode: SkysSockets.Server.LogicCode.MultiSocket
+    placingRules:
+        secondaryGridPositions:
+            - (1/6, 0.5)
+            - (3/6, 0.5)
+            - (5/6, 0.5)
+        primaryEdgePositions:
+            - (0.5, 0)
+        secondaryEdgePositions:
+            - (1/6, 0)
+            - (3/6, 0)
+            - (5/6, 0)
+        gridPositionsAreRelative: true
+        allowFineRotation: false
+        gridPlacingDimensions: (1, 2)
