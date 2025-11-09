@@ -8,7 +8,7 @@ Effectively a simpler version of RadioConnection by Ecconia but with named chann
 
 ## Install Instructions
 
-Just copy the LabelSockets folder into your GameData folder and launch the game.
+Just copy the SkysWirelessBus folder into your GameData folder and launch the game.
 
 Requires EccsLogicWorldAPI and EccsGuiBuilder which can be found on the LogicWorld Discord server.
 
