@@ -18,10 +18,16 @@ public class VirtualSocketHolder(LogicComponent Root)
     public List<VirtualSocket> Sockets = [];
     private (Vector3, Vector3, Vector3, Vector3) BlueSquarePoints = DefaultBlueSquarePoints;
 
-    public void OnComponentMovedUpdate()
+    public void OnComponentMoved()
     {
         foreach (var socket in Sockets)
             socket.OnComponentMoved();
+    }
+    public void OnComponentDestroyed()
+    {
+        foreach (var socket in Sockets)
+            socket.OnComponentDestroyed();
+        Sockets = [];
     }
 
     public void GenerateSockets(
@@ -38,7 +44,7 @@ public class VirtualSocketHolder(LogicComponent Root)
                 relativeRotations[i],
                 BlueSquarePoints
             ));
-        OnComponentMovedUpdate();
+        OnComponentMoved();
     }
 
     public void SetBlueSquarePoints((Vector3, Vector3, Vector3, Vector3) blueSquarePoints)

@@ -9,7 +9,8 @@ public class MultiSocket : LogicComponent
 
     protected override void Initialize() => QueueLogicUpdate();
     protected override void OnCustomDataUpdated() => QueueLogicUpdate();
-    public override void OnComponentMoved() => sockets.OnComponentMovedUpdate();
+    public override void OnComponentMoved() => sockets.OnComponentMoved();
+    public override void OnComponentDestroyed() => sockets.OnComponentDestroyed();
 
     protected override void DoLogicUpdate()
     {
