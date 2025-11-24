@@ -1,0 +1,11 @@
+ID: SkysMetaphysicalThesisOnTheArbitrarinessOfPlacementRules
+Name: Sky's Metaphysical Thesis On The Arbitrariness Of Placement Rules
+Author: Skyjoe66
+Version: 0.0.1
+Priority: 0
+
+Type: ClientOnly
+
+Dependencies:
+    - EccsLogicWorldAPI
+    - HarmonyForLogicWorld
