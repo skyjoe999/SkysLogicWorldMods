@@ -1,0 +1,6 @@
+MHG.SettingsMenu.Pages.Controls.Headings.SkysBoardTools: "Mod: Sky's Board Tools"
+
+FancyInput.Trigger.SkysBoardTools.JoinBoards : "Join Boards"
+FancyInput.Trigger.SkysBoardTools.JoinBoards.Description : """
+    Fuse two boards together. Boards must be aligned and match in the relevant dimension.
+    """

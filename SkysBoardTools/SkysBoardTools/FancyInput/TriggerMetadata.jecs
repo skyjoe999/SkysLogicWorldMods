@@ -1,0 +1,5 @@
+SkysBoardTools.JoinBoards:
+    Heading: "SkysBoardTools"
+    DefaultBinding:
+        Options:
+            - J

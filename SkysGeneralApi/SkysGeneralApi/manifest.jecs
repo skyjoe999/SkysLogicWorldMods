@@ -1,0 +1,8 @@
+ID: SkysGeneralLib
+Name: Sky's General Library
+Author: Skyjoe66
+Version: 0.0.1
+Priority: 1
+
+Dependencies:
+    - EccsLogicWorldAPI
