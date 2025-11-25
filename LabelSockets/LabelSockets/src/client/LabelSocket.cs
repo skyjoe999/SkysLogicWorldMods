@@ -14,9 +14,10 @@ public class LabelSocket : ComponentClientCode<Label.IData>, IColorableClientCod
 {
     private LabelTextManager _label;
     private RectTransform _labelTransform;
-    private float Height => 0.666666f;
+    private Vector2 SizeDelta;
     string IColorableClientCode.ColorsFileKey => "LabelText";
     float IColorableClientCode.MinColorValue => 0f;
+
 
     Color24 IColorableClientCode.Color
     {
@@ -27,7 +28,7 @@ public class LabelSocket : ComponentClientCode<Label.IData>, IColorableClientCod
     protected override void DataUpdate()
     {
         _label.DataUpdate(Data);
-        _labelTransform.sizeDelta = new Vector2(2, 1) * 0.3f * 0.333333f;
+        _labelTransform.sizeDelta = SizeDelta;
     }
 
     protected override void SetDataDefaultValues()
@@ -53,13 +54,30 @@ public class LabelSocket : ComponentClientCode<Label.IData>, IColorableClientCod
         var gameObject = Object.Instantiate(Prefabs.ComponentDecorations.LabelText, parentToCreateDecorationsUnder);
         _label = gameObject.GetComponent<LabelTextManager>();
         _labelTransform = _label.GetRectTransform();
-        _labelTransform.sizeDelta = new Vector2(2, 1) * 0.3f * 0.333333f;
+        var LocalPosition = new Vector3(
+            GetBlockEntity(1).Scale.x / 2f,
+            GetBlockEntity(1).Scale.y + 0.001f,
+            GetBlockEntity(1).Scale.z / 2f * (CodeInfoBools[0] ? 1 : -1)
+        ) + Component.ToLocalSpace(GetBlockEntity(1).WorldPosition) * 0.3f;
+        Logger.Info(CodeInfoBools[0] + "");
+        Quaternion LocalRotation;
+        if (CodeInfoBools[0]) // Rotate
+        {
+            SizeDelta = new Vector2(GetBlockEntity(1).Scale.x, GetBlockEntity(1).Scale.z);
+            LocalRotation = Quaternion.Euler(90f, -180f, 0f);
+        }
+        else
+        {
+            SizeDelta = new Vector2(GetBlockEntity(1).Scale.z, GetBlockEntity(1).Scale.x);
+            LocalRotation = Quaternion.Euler(90f, -90f, 0f);
+        }
+
         return
         [
             new Decoration
             {
-                LocalPosition = new Vector3(0.5f - 0.3333f, Height + 0.001f, -0.5f + 0.3333f) * 0.3f,
-                LocalRotation = Quaternion.Euler(90f, -90f, 0f),
+                LocalPosition = LocalPosition,
+                LocalRotation = LocalRotation,
                 DecorationObject = gameObject,
                 IncludeInModels = true,
                 ShouldBeOutlined = false,

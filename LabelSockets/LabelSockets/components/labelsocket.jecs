@@ -42,6 +42,8 @@ LabelSocket:
         - 0.1
         - 0.2333333
         - 0.5
+    codeInfoBools:
+        - false # rotate
     placingRules:
         secondaryGridPositions:
             - (1/6, 0.5)
@@ -55,4 +57,50 @@ LabelSocket:
             - (5/6, 0)
         gridPositionsAreRelative: true
         allowFineRotation: false
+        gridPlacingDimensions: (1, 2)
+
+
+ChubbyLabelSocket:
+    column: "Miscellaneous"
+    category: "Routing"
+    prefab:
+        blocks:
+            -   # This is the little blue square that changes color
+                scale: (0.8, 1, 0.8)
+                position: (0, 0.5, 0.501) # Just barely in front of the white block
+                rotation: (90, 0, 0)
+                mesh: FlatQuad
+                color: 007A72
+                colliderData:
+                    type: None
+            -
+                scale: (1, 1, 2/3)
+                position: (0, 0, 1/6)
+        inputs:
+            -
+                position: (0, 0.5, -1/6)
+                rotation: (-90, 0, 0)
+                length: 0.6
+    clientCode: LabelSockets.Client.ClientCode.LabelSocket
+    logicCode: LogicWorld.LogicCode.Socket
+    codeInfoFloats:
+        # Blue part corner 1
+        - -0.4
+        - 0.1
+        - 0.5
+        # Blue part corner 2
+        - -0.4
+        - 0.9
+        - 0.5
+        # Blue part corner 3
+        - 0.4
+        - 0.9
+        - 0.5
+        # Blue part corner 4
+        - 0.4
+        - 0.1
+        - 0.5
+    codeInfoBools:
+        - true # rotate
+    placingRules:
         gridPlacingDimensions: (1, 2)
