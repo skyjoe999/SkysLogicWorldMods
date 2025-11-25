@@ -118,7 +118,6 @@ class Patch4
 
     private static void RotateGhost(StuffPlacer ghost, float amount)
     {
-        LConsole.WriteLine(amount);
         ghost.Info.RotationAboutUpVector += amount;
         ghost.Ghost.Transform.Rotate(Vector3.up, amount);
     }
