@@ -23,7 +23,7 @@ LabelSocket:
                 rotation: (-90, 0, 0)
                 length: 0.6
     clientCode: LabelSockets.Client.ClientCode.LabelSocket
-    logicCode: LabelSockets.Server.LogicCode.LabelSocket
+    logicCode: LogicWorld.LogicCode.Socket
     codeInfoFloats:
         # These points must go around in a circle, they can't be in just any order
         # Blue part corner 1

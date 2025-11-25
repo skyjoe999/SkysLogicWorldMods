@@ -5,7 +5,6 @@ using LogicWorld.Interfaces;
 using LogicWorld.References;
 using LogicWorld.Rendering.Chunks;
 using LogicWorld.Rendering.Components;
-using LogicAPI.Data;
 using LogicWorld.SharedCode;
 using UnityEngine;
 
@@ -21,13 +20,13 @@ public class LabelSocket : ComponentClientCode<Label.IData>, IColorableClientCod
 
     Color24 IColorableClientCode.Color
     {
-        get { return Data.LabelColor; }
-        set { Data.LabelColor = value; }
+        get => Data.LabelColor;
+        set => Data.LabelColor = value;
     }
 
     protected override void DataUpdate()
     {
-        _label.DataUpdate(base.Data);
+        _label.DataUpdate(Data);
         _labelTransform.sizeDelta = new Vector2(2, 1) * 0.3f * 0.333333f;
     }
 
@@ -45,13 +44,13 @@ public class LabelSocket : ComponentClientCode<Label.IData>, IColorableClientCod
 
     protected override void FrameUpdate()
     {
-        GpuColor color = (GetInputState() ? Colors.SnappingPegOn : Colors.SnappingPegOff);
+        var color = (GetInputState() ? Colors.SnappingPegOn : Colors.SnappingPegOff);
         SetBlockColor(color);
     }
 
     protected override IDecoration[] GenerateDecorations(Transform parentToCreateDecorationsUnder)
     {
-        GameObject gameObject = Object.Instantiate(Prefabs.ComponentDecorations.LabelText, parentToCreateDecorationsUnder);
+        var gameObject = Object.Instantiate(Prefabs.ComponentDecorations.LabelText, parentToCreateDecorationsUnder);
         _label = gameObject.GetComponent<LabelTextManager>();
         _labelTransform = _label.GetRectTransform();
         _labelTransform.sizeDelta = new Vector2(2, 1) * 0.3f * 0.333333f;
