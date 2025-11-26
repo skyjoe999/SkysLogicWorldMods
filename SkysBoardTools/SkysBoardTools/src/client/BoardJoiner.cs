@@ -138,7 +138,8 @@ public static class BoardJoiner
                     Trigger.Place,
                     SkysBoardToolsTrigger.JoinBoards
                 ))
-                Finish();
+                if (isValid)
+                    Finish();
 
             // Update
             if (!TrySetOtherBoard() && OtherBoard != null)
