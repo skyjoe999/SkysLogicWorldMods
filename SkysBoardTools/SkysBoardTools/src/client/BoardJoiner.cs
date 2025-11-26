@@ -157,6 +157,7 @@ public static class BoardJoiner
         private void Finish()
         {
             // Might need to swap if MainBoard is a descendant of OtherBoard
+            // TODO: swap with reparenting, this only works if the board are fungible
             if (MainBoard.Address.DescendsFrom(OtherBoard.Address))
             {
                 (MainBoard, OtherBoard) = (OtherBoard, MainBoard);
@@ -168,14 +169,13 @@ public static class BoardJoiner
             var VShift = Math.Abs(correctedPosition.x) < 0.001 && correctedPosition.y < 0;
 
             List<BuildRequest> requests = [];
-            var shiftAmount = new Vector3(HShift ? correctedPosition.x : 0, 0f, VShift ? correctedPosition.y : 0);
+            var shiftAmount =
+                new Vector3(HShift ? correctedPosition.x : 0, 0f, VShift ? correctedPosition.y : 0) * 0.3f;
             if (HShift || VShift)
-            {
-                requests.Add(new BuildRequest_RepositionComponent(MainBoard.Address, -shiftAmount));
-                requests.AddRange(OtherBoard.Component.EnumerateChildren().Select(childA =>
-                    new BuildRequest_RepositionComponent(childA, shiftAmount)
+                requests.Add(new BuildRequest_RepositionComponent(
+                    MainBoard.Address,
+                    MainBoard.Component.LocalRotation * shiftAmount
                 ));
-            }
 
             requests.Add(SetSizeRequest());
 
@@ -184,8 +184,9 @@ public static class BoardJoiner
             requests.AddRange(OtherBoard.Component.EnumerateChildren().Select(targetAddress =>
                 new BuildRequest_UpdateComponentPositionRotationParent(
                     targetAddress,
-                    newParent.GetComponent().ToLocalSpace(targetAddress.GetComponent().WorldPosition) * 0.3f,
-                    newParent.GetComponent().WorldRotation * targetAddress.GetComponent().WorldRotation,
+                    newParent.GetComponent()
+                        .ToLocalSpace(targetAddress.GetComponent().WorldPosition) * 0.3f - shiftAmount,
+                    newParent.GetComponent().WorldRotation.Inverse() * targetAddress.GetComponent().WorldRotation,
                     newParent
                 )
             ));
@@ -215,6 +216,7 @@ public static class BoardJoiner
 
         private bool TrySetOtherBoard() // Returns true if a possible board was found (even if not new)
         {
+            // not resetting is valid here is crashing the game
             var info = PlayerCaster.CameraCast(Masks.Environment | Masks.Structure | Masks.Peg | Masks.PlayerModel);
             if (!info.HitComponent) return false;
             if (info.cAddress == MainBoard.Address) return false;
