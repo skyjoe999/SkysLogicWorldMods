@@ -7,6 +7,7 @@ using JimmysUnityUtilities;
 using LogicAPI.Data;
 using LogicAPI.Data.BuildingRequests;
 using LogicUI;
+using LogicWorld.Audio;
 using LogicWorld.Building.Overhaul;
 using LogicWorld.ClientCode;
 using LogicWorld.GameStates;
@@ -75,6 +76,7 @@ public static class BoardJoiner
                 joining = new JoiningManager(clientCode);
                 return;
             }
+            SoundPlayer.PlayFail();
         }
     }
 
@@ -153,6 +155,7 @@ public static class BoardJoiner
         private void Cancel()
         {
             // Let dispose handle the rest
+            SoundPlayer.PlaySoundGlobal(Sounds.DeleteSomething);
             GameStateManager.TransitionBackToBuildingState();
         }
 
@@ -194,6 +197,8 @@ public static class BoardJoiner
             ));
             requests.Add(new BuildRequest_RemoveComponentsAndChildrenAndAttachedWires([OtherBoard.Address]));
             requests.SendAllRequests();
+            
+            SoundPlayer.PlaySoundGlobal(Sounds.PlaceOnBoard);
             GameStateManager.TransitionBackToBuildingState();
         }
 
@@ -236,6 +241,7 @@ public static class BoardJoiner
                 Outliner.RemoveOutline(OtherBoard.Address);
             OtherBoard = NewBoard;
             isValid = CheckIsValid(); // I could do this in the next line but every IDE ever will assume I meant ==
+            SoundPlayer.PlaySoundGlobal(Sounds.ConnectionInitial);
             Outliner.Outline(OtherBoard.Address, isValid ? OutlineData.Valid : OutlineData.Invalid);
         }
 
