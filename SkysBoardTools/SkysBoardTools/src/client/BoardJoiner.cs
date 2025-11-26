@@ -144,6 +144,7 @@ public static class BoardJoiner
             if (!TrySetOtherBoard() && OtherBoard != null)
             {
                 Outliner.RemoveOutline(OtherBoard.Address);
+                isValid = false; // maybe that fixes the crash? idk
                 OtherBoard = null;
             }
         }
