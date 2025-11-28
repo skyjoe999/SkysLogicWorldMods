@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FancyInput;
-using JetBrains.Annotations;
 using JimmysUnityUtilities;
 using LogicAPI.Data;
 using LogicAPI.Data.BuildingRequests;
@@ -20,67 +19,36 @@ using SkysGeneralLib.Client.BuildRequests;
 using SkysBoardTools.Client.Keybindings;
 using UnityEngine;
 
-namespace SkysBoardTools.client;
+namespace SkysBoardTools.Client;
 
 public static class BoardJoiner
 {
     public static string GameStateTextID => "SkysBoardTools.BoardJoining";
 
-    // TODO: Help screen
-    private static IEnumerable<InputTrigger> _HelpScreenTriggers() => [];
-    private static readonly List<ComponentType> UnJoinableTypes = new(); // Modding considerations? In LW? Unheard-of
-    public static JoiningManager joining;
+    public static readonly HashSet<ComponentType> UnJoinableTypes = []; // Modding considerations? In LW? Unheard-of
 
-    public static void AddUnJoinableType(ComponentType type)
-    {
-        if (!UnJoinableTypes
-                .Contains(type)) // should always be true but might save someone a headache at a one-time cost
-            UnJoinableTypes.Add(type);
-    }
+    public static JoiningManager Joining;
 
-    [UsedImplicitly]
     public class JoinBoardsOperation : BuildingOperation
     {
         public override InputTrigger OperationStarter => SkysBoardToolsTrigger.JoinBoards;
-
-
-        // public override string IconHexCode => "f047";
+        public override string IconHexCode => "e49e";
 
         public override bool CanOperateOn(ComponentSelection selection)
         {
-            // Very might never be called with 2+ selected if i cant get multi select to work >:/
-            // (except for in the radial menu... you just cant actually start it)
             if (selection.Count != 1) return false;
-            foreach (var address in selection)
-            {
-                if (address.GetClientCode() is not CircuitBoard clientCode) continue;
-                var type = clientCode.Component.Data.Type;
-                if (UnJoinableTypes.Contains(type)) continue;
-                return true;
-            }
 
-            return false;
+            return selection.FirstComponentInSelection.GetClientCode() is CircuitBoard clientCode &&
+                !UnJoinableTypes.Contains(clientCode.Component.Data.Type);
         }
 
         public override void BeginOperationOn(ComponentSelection selection)
         {
-            if (selection.Count != 1)
-                return;
-
-            foreach (var address in selection)
-            {
-                if (address.GetClientCode() is not CircuitBoard clientCode) continue;
-                var type = clientCode.Component.Data.Type;
-                if (UnJoinableTypes.Contains(type)) continue;
-                GameStateManager.TransitionTo(GameStateTextID);
-                joining = new JoiningManager(clientCode);
-                return;
-            }
-            SoundPlayer.PlayFail();
+            Joining = new(selection.FirstComponentInSelection.GetClientCode() as CircuitBoard);
+            GameStateManager.TransitionTo(GameStateTextID);
         }
     }
 
-    [UsedImplicitly]
     private class JoinBoardsState : GameState
     {
         public override bool PlayerCanMoveAndLookAround => true;
@@ -89,23 +57,24 @@ public static class BoardJoiner
 
         public override string TextID => GameStateTextID;
 
-        public override void OnRun() => joining.OnRun();
+        public override void OnRun() => Joining.OnRun();
 
         public override void OnExit()
         {
-            joining.Dispose();
-            joining = null;
+            Joining?.Dispose();
+            Joining = null;
         }
 
-        public override IEnumerable<InputTrigger> HelpScreenTriggers => _HelpScreenTriggers();
+        public override IEnumerable<InputTrigger> HelpScreenTriggers => [];
     }
 
     public class JoiningManager : IDisposable
     {
+        public bool IsValid { get; private set; }
+
         private CircuitBoard MainBoard;
         private CircuitBoard OtherBoard;
         private bool areFlipped;
-        private bool isValid;
         private bool transposeSize; // Swap SizeX and SizeZ for the other board
         private Vector2 correctedPosition;
         private bool mergeVertical;
@@ -138,16 +107,17 @@ public static class BoardJoiner
             // TODO: if join pressed select new board on success and other board on failure?
             if (CustomInput.AnyDown(
                     Trigger.Place,
-                    SkysBoardToolsTrigger.JoinBoards
+                    SkysBoardToolsTrigger.JoinBoards,
+                    SkysBoardToolsTrigger.SplitOrJoinBoards
                 ))
-                if (isValid)
+                if (IsValid)
                     Finish();
 
             // Update
             if (!TrySetOtherBoard() && OtherBoard != null)
             {
                 Outliner.RemoveOutline(OtherBoard.Address);
-                isValid = false; // maybe that fixes the crash? idk
+                IsValid = false;
                 OtherBoard = null;
             }
         }
@@ -157,6 +127,14 @@ public static class BoardJoiner
             // Let dispose handle the rest
             SoundPlayer.PlaySoundGlobal(Sounds.DeleteSomething);
             GameStateManager.TransitionBackToBuildingState();
+        }
+
+        public bool TryFinish()
+        {
+            if (!IsValid)
+                return false;
+            Finish();
+            return true;
         }
 
         private void Finish()
@@ -197,7 +175,7 @@ public static class BoardJoiner
             ));
             requests.Add(new BuildRequest_RemoveComponentsAndChildrenAndAttachedWires([OtherBoard.Address]));
             requests.SendAllRequests();
-            
+
             SoundPlayer.PlaySoundGlobal(Sounds.PlaceOnBoard);
             GameStateManager.TransitionBackToBuildingState();
         }
@@ -223,7 +201,6 @@ public static class BoardJoiner
 
         private bool TrySetOtherBoard() // Returns true if a possible board was found (even if not new)
         {
-            // not resetting is valid here is crashing the game
             var info = PlayerCaster.CameraCast(Masks.Environment | Masks.Structure | Masks.Peg | Masks.PlayerModel);
             if (!info.HitComponent) return false;
             if (info.cAddress == MainBoard.Address) return false;
@@ -240,9 +217,9 @@ public static class BoardJoiner
             if (OtherBoard != null)
                 Outliner.RemoveOutline(OtherBoard.Address);
             OtherBoard = NewBoard;
-            isValid = CheckIsValid(); // I could do this in the next line but every IDE ever will assume I meant ==
+            IsValid = CheckIsValid(); // I could do this in the next line but every IDE ever will assume I meant ==
             SoundPlayer.PlaySoundGlobal(Sounds.ConnectionInitial);
-            Outliner.Outline(OtherBoard.Address, isValid ? OutlineData.Valid : OutlineData.Invalid);
+            Outliner.Outline(OtherBoard.Address, IsValid ? OutlineData.Valid : OutlineData.Invalid);
         }
 
         private bool CheckIsValid()

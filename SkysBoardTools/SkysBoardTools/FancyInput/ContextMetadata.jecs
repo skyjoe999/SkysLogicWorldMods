@@ -1,3 +1,7 @@
 SkysBoardTools.SkysBoardTools:
+    InjectTriggersInto:
+        - MHG.BuildActions
     Triggers:
         - SkysBoardTools.JoinBoards
+        - SkysBoardTools.SplitBoards
+        - SkysBoardTools.SplitOrJoinBoards

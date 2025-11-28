@@ -1,5 +1,8 @@
 SkysBoardTools.JoinBoards:
     Heading: "SkysBoardTools"
-    DefaultBinding:
-        Options:
-            - J
+
+SkysBoardTools.SplitBoards:
+    Heading: "SkysBoardTools"
+
+SkysBoardTools.SplitOrJoinBoards:
+    Heading: "SkysBoardTools"
