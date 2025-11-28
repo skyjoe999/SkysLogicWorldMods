@@ -1,3 +1,4 @@
 SkysBoardTools.SkysBoardTools:
     Triggers:
         - SkysBoardTools.JoinBoards
+        - SkysBoardTools.SplitBoards

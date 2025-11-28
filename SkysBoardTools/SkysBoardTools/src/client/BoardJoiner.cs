@@ -44,7 +44,7 @@ public static class BoardJoiner
         public override InputTrigger OperationStarter => SkysBoardToolsTrigger.JoinBoards;
 
 
-        // public override string IconHexCode => "f047";
+        public override string IconHexCode => "e49e";
 
         public override bool CanOperateOn(ComponentSelection selection)
         {

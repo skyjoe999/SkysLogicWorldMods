@@ -4,5 +4,6 @@ namespace SkysBoardTools.Client.Keybindings
 	{
 		None,
 		JoinBoards,
+		SplitBoards,
 	}
 }

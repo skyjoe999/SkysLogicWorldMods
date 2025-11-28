@@ -3,3 +3,8 @@ SkysBoardTools.JoinBoards:
     DefaultBinding:
         Options:
             - J
+SkysBoardTools.SplitBoards:
+    Heading: "SkysBoardTools"
+    DefaultBinding:
+        Options:
+            - LeftShift + J

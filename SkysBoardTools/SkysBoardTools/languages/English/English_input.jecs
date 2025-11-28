@@ -4,3 +4,7 @@ FancyInput.Trigger.SkysBoardTools.JoinBoards : "Join Boards"
 FancyInput.Trigger.SkysBoardTools.JoinBoards.Description : """
     Fuse two boards together. Boards must be aligned and match in the relevant dimension.
     """
+FancyInput.Trigger.SkysBoardTools.SplitBoards : "Split Boards"
+FancyInput.Trigger.SkysBoardTools.SplitBoards.Description : """
+    Separates one board into two parts.
+    """
