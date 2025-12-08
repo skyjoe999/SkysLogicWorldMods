@@ -1,0 +1,12 @@
+ID: CircuitBoardPlacementWorkaround
+Name: Circuit Board Placement Workaround
+Author: Skyjoe66
+Version: 0.0.1
+Priority: 48
+
+# Never going to be useful but technically true
+Type: ClientOnly
+
+Dependencies:
+    - HarmonyForLogicWorld
+    - SkysGeneralLib
