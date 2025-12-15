@@ -14,6 +14,9 @@ namespace SkysCircuitBoardPlacementWorkaround.Client;
 public abstract class SemiCircuitBoard : CircuitBoard
 {
     public abstract bool CanMoveOn(HitInfo info);
+    // Just a helper function for the most likely use case
+    protected bool IsFirstCollider(HitInfo info) => info.Hit.collider == GetBlockEntity().Collider;
+
 }
 
 // Would love to make this a generic pattern except I cant without c++ style templates
