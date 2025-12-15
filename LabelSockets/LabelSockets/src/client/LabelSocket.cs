@@ -59,7 +59,6 @@ public class LabelSocket : ComponentClientCode<Label.IData>, IColorableClientCod
             GetBlockEntity(1).Scale.y + 0.001f,
             GetBlockEntity(1).Scale.z / 2f * (CodeInfoBools[0] ? 1 : -1)
         ) + Component.ToLocalSpace(GetBlockEntity(1).WorldPosition) * 0.3f;
-        Logger.Info(CodeInfoBools[0] + "");
         Quaternion LocalRotation;
         if (CodeInfoBools[0]) // Rotate
         {
