@@ -1,0 +1,9 @@
+ID: SkysBetterBoardLib
+Name: Sky's Better Board Library
+Author: Skyjoe66
+Version: 0.1.0
+Priority: 48
+
+Dependencies:
+    - HarmonyForLogicWorld
+    - SkysGeneralLib

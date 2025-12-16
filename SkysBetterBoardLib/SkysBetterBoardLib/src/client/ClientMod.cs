@@ -5,13 +5,13 @@ using LogicWorld.Building.Overhaul;
 using LogicWorld.Interfaces;
 using LogicWorld.Physics;
 
-namespace SkysCircuitBoardPlacementWorkaround.Client;
+namespace SkysBetterBoardLib.Client;
 
-public class SkysCircuitBoardPlacementWorkaround_ClientMod : ClientMod
+public class SkysBetterBoardLib_ClientMod : ClientMod
 {
     protected override void Initialize()
     {
-        var harmony = new Harmony("SkysCircuitBoardPlacementWorkaroundClient");
+        var harmony = new Harmony("SkysBetterBoardLibClient");
         // Harmony.DEBUG = true;
         harmony.PatchAll();
     }
