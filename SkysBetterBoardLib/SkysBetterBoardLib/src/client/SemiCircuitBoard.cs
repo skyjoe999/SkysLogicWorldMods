@@ -9,7 +9,7 @@ using LogicWorld.Rendering.Components;
 using LogicWorld.SharedCode.BinaryStuff;
 using SkysGeneralLib.Shared;
 
-namespace SkysCircuitBoardPlacementWorkaround.Client;
+namespace SkysBetterBoardLib.Client;
 
 public abstract class SemiCircuitBoard : CircuitBoard
 {
