@@ -97,7 +97,7 @@ class MoveOnBoardFacePatch
     }
 
     private static Quaternion GetUnroundedPreRotation(StuffPlacer __instance, Vector3 upwardsDirection)
-        => (Quaternion)GetUnroundedPreRotationFunc.Invoke(__instance, [upwardsDirection]);
+        => (Quaternion)GetUnroundedPreRotationFunc.Invoke(__instance, [upwardsDirection, false]);
 
     private static MethodInfo GetUnroundedPreRotationFunc =
         Methods.getPrivate(typeof(StuffPlacer), "GetUnroundedPreRotation");
