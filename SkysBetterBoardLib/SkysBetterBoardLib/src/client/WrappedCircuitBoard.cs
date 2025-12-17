@@ -4,17 +4,11 @@ using LogicAPI.Data.BuildingRequests;
 using LogicWorld.BuildingManagement;
 using LogicWorld.ClientCode;
 using LogicWorld.Interfaces;
-using LogicWorld.Physics;
 using LogicWorld.Rendering.Components;
 using LogicWorld.SharedCode.BinaryStuff;
 using SkysGeneralLib.Shared;
 
 namespace SkysBetterBoardLib.Client;
-
-public interface ICircuitBoardSurface : IComponentClientCode
-{
-    public bool CanMoveOn(HitInfo info) => true;
-}
 
 // Would love to make this a generic pattern except I cant without c++ style templates
 public abstract class WrappedCircuitBoard<TData> :
