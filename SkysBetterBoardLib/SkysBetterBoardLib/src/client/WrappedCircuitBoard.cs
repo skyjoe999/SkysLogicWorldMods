@@ -11,21 +11,18 @@ using SkysGeneralLib.Shared;
 
 namespace SkysBetterBoardLib.Client;
 
-public abstract class SemiCircuitBoard : CircuitBoard
+public interface ICircuitBoardSurface : IComponentClientCode
 {
-    public abstract bool CanMoveOn(HitInfo info);
-    // Just a helper function for the most likely use case
-    protected bool IsFirstCollider(HitInfo info) => info.Hit.collider == GetBlockEntity().Collider;
-
+    public bool CanMoveOn(HitInfo info) => true;
 }
 
 // Would love to make this a generic pattern except I cant without c++ style templates
-public abstract class SemiCircuitBoard<TData> : 
-    SemiCircuitBoard, IComponentClientCode where TData : class, CircuitBoard.IData
+public abstract class WrappedCircuitBoard<TData> :
+    CircuitBoard, IComponentClientCode where TData : class, CircuitBoard.IData
 {
     private readonly CustomDataManager<TData> DataManager;
 
-    protected SemiCircuitBoard()
+    protected WrappedCircuitBoard()
     {
         DataManager = new CustomDataManager<TData>();
         typeof(ComponentClientCode<IData>)
