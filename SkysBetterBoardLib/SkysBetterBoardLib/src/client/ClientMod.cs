@@ -3,7 +3,6 @@ using System.Reflection;
 using EccsLogicWorldAPI.Shared.AccessHelper;
 using HarmonyLib;
 using JimmysUnityUtilities;
-using LICC;
 using LogicAPI.Client;
 using LogicAPI.Data;
 using LogicWorld.Building.Overhaul;
@@ -109,7 +108,6 @@ class MoveOnBoardEdgePatch
 {
     static bool Prefix(StuffPlacer __instance, HitInfo info, Transform transformToMove, CircuitBoard board)
     {
-        LConsole.WriteLine("Hit Transform Local: " + board.Component.ToLocalSpace(info.WorldPoint));
         if (board is not ICircuitBoardSurface)
             return true;
         Transform transform = info.Hit.transform;
