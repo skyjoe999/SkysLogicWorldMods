@@ -14,6 +14,13 @@ public static class ComponentAddressExtension
     public static LogicComponent GetLogicComponent(this ComponentAddress address)
         => Services.ICircuitryManager.LookupComponent(address);
 
+    public static LogicComponent GetLogicComponent(this ComponentAddress address, out IComponentInWorld component)
+    {
+        var logic = address.GetLogicComponent();
+        component = logic?.Component ?? address.GetComponent();
+        return logic;
+    }
+
     public static bool DescendsFrom(this ComponentAddress address, ComponentAddress other)
     {
         var parent = address;

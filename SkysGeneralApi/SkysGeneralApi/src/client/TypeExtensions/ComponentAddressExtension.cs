@@ -13,6 +13,17 @@ public static class ComponentAddressExtension
     public static IComponentClientCode GetClientCode(this ComponentAddress address, ClientWorld world = null)
         => (world ?? SceneAndNetworkManager.MainWorld).Renderer.Entities.GetClientCode(address);
 
+    public static IComponentClientCode GetClientCode(
+        this ComponentAddress address,
+        out IComponentInWorld component,
+        ClientWorld world = null
+    )
+    {
+        var client = address.GetClientCode();
+        component = client?.Component ?? address.GetComponent();
+        return client;
+    }
+
     public static bool DescendsFrom(this ComponentAddress address, ComponentAddress other)
     {
         var parent = address;
