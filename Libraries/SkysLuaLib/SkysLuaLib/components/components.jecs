@@ -1,0 +1,19 @@
+#ScriptRunner:
+#    column: "Output"
+#    category: "Lua"
+#    prefab:
+#        blocks:
+#            -
+#                position: (-0.5, 0, -0.5)
+#                mesh: OriginCube
+#        inputs:
+#            -
+#                position: (-0.65, 0, 0)
+#        outputs:
+#            -
+#                position: (-0.75, 0, 1)
+#    clientCode: LogicWorld.ClientCode.Label
+#    logicCode: SkysLuaLib.Server.ScriptRunner
+#    placingRulesGenerator: LogicWorld.ClientCode.DynamicGenerators.LabelPlacingRulesGenerator
+#    codeInfoFloats:
+#        - 1/3 # height
