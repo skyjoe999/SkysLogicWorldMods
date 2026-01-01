@@ -1,0 +1,10 @@
+ID: SkysLuaLib
+Name: Sky's Lua Library
+Author: Skyjoe66
+Version: 0.0.1
+Priority: 86
+
+Type: ServerOnly
+
+Dependencies:
+    - AssemblyLoader
