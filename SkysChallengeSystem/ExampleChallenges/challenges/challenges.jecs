@@ -1,0 +1,91 @@
+HalfAdder:
+    Description: """
+        Add the two one bit numbers to produce a one bit answer and a carry. 
+        The "New" peg will be set high for one tick when a new problem is sent. 
+        Set the "Check" peg high for one tick when your calculations are done.
+        """
+    Version: 0.0.1
+    Folder: Math
+    QuestionNames:
+        - New
+        - Input 1
+        - Input 2
+    AnswerNames:
+        - Check
+        - Output
+        - Carry
+    Loader: SkysChallengeSystem.Server.Loaders.BasicChallengeLoader
+    FinalDisplay: Yay!!!
+    Steps:
+        # 0 + 0
+        -
+            DontWaitForTrigger: true
+            QuestionValues:
+                - true
+                - false
+                - false
+            Display: 1 / 4
+        -
+            QuestionValues:
+                - false
+            ValidAnswers:
+                - -1
+                - 0
+                - 0
+            TriggerPins:
+                - 0
+            FailOnInvalid: true
+        # 0 + 1
+        -
+            DontWaitForTrigger: true
+            QuestionValues:
+                - true
+                - false
+                - true
+            Display: 2 / 4
+        -
+            QuestionValues:
+                - false
+            ValidAnswers:
+                - -1
+                - 1
+                - 0
+            TriggerPins:
+                - 0
+            FailOnInvalid: true
+        # 1 + 1
+        -
+            DontWaitForTrigger: true
+            QuestionValues:
+                - true
+                - true
+                - true
+            Display: 3 / 4
+        -
+            QuestionValues:
+                - false
+            ValidAnswers:
+                - -1
+                - 0
+                - 1
+            TriggerPins:
+                - 0
+            FailOnInvalid: true
+        # 1 + 0
+        -
+            DontWaitForTrigger: true
+            QuestionValues:
+                - true
+                - true
+                - false
+            Display: 4 / 4
+        -
+            QuestionValues:
+                - false
+            ValidAnswers:
+                - -1
+                - 1
+                - 0
+            TriggerPins:
+                - 0
+            FailOnInvalid: true

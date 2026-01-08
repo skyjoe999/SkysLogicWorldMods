@@ -1,0 +1,7 @@
+ComponentCategory.Challenge : "Challenge"
+
+SkysChallengeSystem.ChallengeBoard : "Challenge Board"
+SkysChallengeSystem.ChallengeAnswer : "Answer Peg"
+SkysChallengeSystem.ChallengeQuestion : "Question Peg"
+SkysChallengeSystem.ChallengeButton : "Starter"
+SkysChallengeSystem.ChallengeDisplay : "Display"
