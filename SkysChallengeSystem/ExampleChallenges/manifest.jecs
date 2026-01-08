@@ -1,0 +1,8 @@
+ID: ExampleChallenges
+Name: ExampleChallenges
+Author: SkyBagel66
+Version: 0.0.1
+Priority: 0
+
+Dependencies:
+    - SkysChallengeSystem

@@ -1,0 +1,9 @@
+SkysChallengeSystem.Gui.ChallengeDisplay.FontSizeLabel : "Font Size:"
+SkysChallengeSystem.Gui.ChallengeDisplay.NormalButtonLabel : "Normal"
+SkysChallengeSystem.Gui.ChallengeDisplay.DescriptionButtonLabel : "Description"
+
+SkysChallengeSystem.Gui.ChallengeButton.StartButtonLabel : "Start"
+SkysChallengeSystem.Gui.ChallengeButton.CancelButtonLabel : "Reset"
+
+SkysChallengeSystem.Gui.Left : "<"
+SkysChallengeSystem.Gui.Right : ">"

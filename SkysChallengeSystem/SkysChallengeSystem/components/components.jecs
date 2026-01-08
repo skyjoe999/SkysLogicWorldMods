@@ -1,0 +1,72 @@
+ChallengeBoard:
+    column: "Miscellaneous"
+    category: "Challenge"
+    clientCode: SkysChallengeSystem.Client.ClientCode.ChallengeBoard
+    logicCode: SkysChallengeSystem.Server.LogicCode.ChallengeBoard
+    prefabGenerator: SkysChallengeSystem.Client.ClientCode.ChallengeBoardPrefabGenerator
+    placingRules:
+        allowWorldRotation: false
+
+ChallengeAnswer:
+    column: "Miscellaneous"
+    category: "Challenge"
+    prefab:
+        blocks:
+            -
+                scale: (1, 1, 0.5)
+                position: (0, 0, -0.25)
+                color: A9A9A9
+        inputs:
+            -
+                position: (0, 0, .15)
+                rotation: (0, 0, 0)
+                length: 1
+    clientCode: SkysChallengeSystem.Client.ClientCode.ChallengePeg
+    logicCode: SkysChallengeSystem.Server.LogicCode.ChallengeAnswer
+    codeInfoBools:
+        # IsQuestion
+        - false
+
+ChallengeQuestion:
+    column: "Miscellaneous"
+    category: "Challenge"
+    prefab:
+        blocks:
+            -
+                scale: (1, 1, 0.5)
+                position: (0, 0, -0.25)
+                color: A9A9A9
+        outputs:
+            -
+                position: (0, 0.5, 0)
+                rotation: (90, 0, 0)
+    clientCode: SkysChallengeSystem.Client.ClientCode.ChallengePeg
+    logicCode: SkysChallengeSystem.Server.LogicCode.ChallengeQuestion
+    codeInfoBools:
+        # IsQuestion
+        - true
+
+ChallengeButton:
+    column: "Miscellaneous"
+    category: "Challenge"
+    prefab:
+        blocks:
+            - Standard
+    clientCode: SkysChallengeSystem.Client.ClientCode.ChallengeButton
+    logicCode: SkysChallengeSystem.Server.LogicCode.ChallengeButton
+
+ChallengeDisplay:
+    column: "Miscellaneous"
+    category: "Challenge"
+    prefab:
+        blocks:
+            - 
+                mesh: OriginCube
+                color: 101010
+                position: (-0.5, 0, 1 / 6)
+            - 
+                mesh: OriginCube
+                color: C0C0C0
+                position: (-0.5, 0, -1 / 2)
+    clientCode: SkysChallengeSystem.Client.ClientCode.ChallengeDisplay
+    logicCode: SkysChallengeSystem.Server.LogicCode.ChallengeDisplay
