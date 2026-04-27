@@ -1,0 +1,10 @@
+ID: SkysCondensedCabling
+Name: Sky's Condensed Cabling
+Author: Skyjoe66
+Version: 0.0.1
+Priority: 0
+
+Dependencies:
+    - EccsLogicWorldAPI
+    - HarmonyForLogicWorld
+    - SkysGeneralLib

@@ -1,0 +1,109 @@
+Peg2:
+    column: "Miscellaneous"
+    category: "Routing"
+    prefab:
+#        blocks:
+#            -
+#                scale: (0.5, 0.2, 0.5)
+        inputs:
+            -
+                length: 1
+                bottomless: false
+    clientCode: SkysCondensedCabling.Client.AllSuper
+    logicCode: SkysCondensedCabling.Server.Peg2
+    placingRules: PegLike
+
+Combiner:
+    column: "Miscellaneous"
+    category: "Routing"
+    prefab:
+        blocks:
+            -
+                scale: (7/4, 1, 1)
+                position: (5/8, 0, 0)
+                color: 1a9cc7
+            -
+                mesh: BufferBody
+                rotation: (0, -90, -90)
+                position: (-3/8, 0.5, -0.5)
+                scale: (1, 2/3, 1/4)
+                color: 1a9cc7
+
+        inputs:
+            -
+                position: (0.5, 0.5, 0.5)
+                rotation: (90, 0, 0)
+                length: 0.62
+            -
+                position: (-1/4, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.62
+            -
+                position: (1/4, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.62
+            -
+                position: (3/4, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.62
+            -
+                position: (5/4, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.62
+        outputs:
+                
+    clientCode: SkysCondensedCabling.Client.Combiner
+    logicCode: SkysCondensedCabling.Server.Combiner
+    placingRules:
+        offsetDimensions: (2, 1)
+        allowFineRotation: false
+        canBeFlipped: true
+        flippingPointHeight: 0.5
+
+SuperAndGate:
+    column: "Miscellaneous"
+    category: "Routing"
+    prefab:
+        blocks:
+            -
+                scale: (1, 1, 1)
+                color: 6d1916
+        inputs:
+            -
+                position: (-1/4, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.62
+            -
+                position: (1/4, 0.5, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.62
+        outputs:
+            -
+                position: (0, 0.5, 0.5)
+                rotation: (90, 0, 0)
+
+    clientCode: SkysCondensedCabling.Client.AllSuper
+    logicCode: SkysCondensedCabling.Server.SuperAndGate
+
+SuperBuffer:
+    column: "Logic"
+    prefab:
+        blocks:
+            -
+                color: 8E0E5F
+                mesh: BufferBody_Long
+        inputs:
+            -
+                position: (0, 1.15, -0.5)
+                rotation: (-90, 0, 0)
+                length: 0.5
+            -
+                position: (0, 0.4, 1.5)
+                rotation: (90, 0, 0)
+                length: 0.5
+    clientCode: SkysCondensedCabling.Client.AllSuper
+    logicCode: SkysCondensedCabling.Server.SuperFastBuffer
+    placingRules:
+        offsetDimensions: (1, 2)
+        gridPlacingDimensions: (1, 4)
+        allowFineRotation: false
