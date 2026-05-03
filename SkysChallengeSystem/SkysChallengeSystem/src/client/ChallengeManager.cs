@@ -19,11 +19,8 @@ public static class ChallengeManager
 
     public static void RegisterChallenges(IModFiles modFiles, ModManifest manifest)
     {
-        foreach (
-            var modFile in
-            modFiles.EnumerateFiles()
-                .Where(f => ".jecs".Equals(f.Extension) && f.Path.StartsWith("challenges/"))
-        ) RegisterChallenges(modFile, manifest);
+        foreach (var modFile in modFiles.EnumerateFiles("challenges/*.jecs"))
+            RegisterChallenges(modFile, manifest);
     }
 
     public static void RegisterChallenges(ModFile modFile, ModManifest manifest)
