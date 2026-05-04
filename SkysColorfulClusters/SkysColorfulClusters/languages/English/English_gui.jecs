@@ -1,0 +1,5 @@
+SkysColorfulClusters.Gui.EditWireColor.Off : "Off:"
+SkysColorfulClusters.Gui.EditWireColor.On : "On:"
+SkysColorfulClusters.Gui.EditWireColor.Title : "Set Wire Color"
+SkysColorfulClusters.Gui.EditWireColor.Reset : "Reset"
+SkysColorfulClusters.Gui.EditWireColor.Cancel : "Cancel"

@@ -1,0 +1,12 @@
+ID: SkysColorfulClusters
+Name: Sky's Colorful Clusters
+Author: Skyjoe66
+Version: 0.0.3
+Priority: 1
+
+Dependencies:
+    - EccsLogicWorldAPI
+    - HarmonyForLogicWorld
+    - SkysGeneralLib
+ClientDependencies:
+    - EccsGuiBuilder

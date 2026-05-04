@@ -1,0 +1,7 @@
+MHG.SettingsMenu.Pages.Controls.Headings.SkysColorfulClusters: "Mod: Sky's Colorful Clusters"
+
+FancyInput.Trigger.SkysColorfulClusters.EditWireColor : "Set Wire Color"
+FancyInput.Trigger.SkysColorfulClusters.EditWireColor.Description : """
+    Changes the color of a wire or peg and all its connected pegs.
+    Works with multiselect but every peg on the component will be changed.
+    """

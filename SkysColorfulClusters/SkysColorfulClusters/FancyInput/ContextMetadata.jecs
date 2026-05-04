@@ -1,0 +1,5 @@
+SkysColorfulClusters.SkysColorfulClusters:
+    InjectTriggersInto:
+        - MHG.BuildActions
+    Triggers:
+        - SkysColorfulClusters.EditWireColor
