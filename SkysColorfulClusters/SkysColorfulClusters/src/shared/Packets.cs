@@ -39,5 +39,10 @@ public sealed class ChangeClusterColorRequest : Packet
     }
 }
 
-[MessagePackObject] // An empty packet... this is what I have been reduced to!
-public sealed class ForceResetClusterColorsPacket : Packet;
+// An empty packet... this is what I have been reduced to!
+// (according to ecconia an actually empty packet can crash on windows... *shrug*)
+[MessagePackObject]
+public sealed class ForceResetClusterColorsPacket : Packet
+{
+    [Key(0)] public bool CrashResistantDummyBool;
+}
