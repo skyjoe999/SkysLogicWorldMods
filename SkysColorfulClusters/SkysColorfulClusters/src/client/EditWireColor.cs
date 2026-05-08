@@ -6,7 +6,6 @@ using EccsGuiBuilder.Client.Wrappers;
 using EccsGuiBuilder.Client.Wrappers.AutoAssign;
 using FancyInput;
 using JimmysUnityUtilities;
-using LICC;
 using LogicAPI.Data;
 using LogicUI;
 using LogicUI.ColorChoosing;
@@ -208,7 +207,6 @@ public class EditWireColor : ToggleableSingletonMenu<EditWireColor>, IAssignMyFi
         public override string IconHexCode => "f044";
         public override void BeginOperationOn(ComponentSelection selection)
         {
-            LConsole.WriteLine("Begin op");
             if (!TrySetEditingPeg() || !selection.Contains(EditingPegs[0].ComponentAddress) || selection.Count != 1)
             {
                 var inputs = selection.SelectMany(a => a.GetComponent().Data.InputInfos.Select((_, i) => new PegAddress(a, i, PegType.Input)));
@@ -219,11 +217,9 @@ public class EditWireColor : ToggleableSingletonMenu<EditWireColor>, IAssignMyFi
                 GameStateManager.TransitionTo(GameStateTextID);
         }
 
-        public override bool CanOperateOn(ComponentSelection selection)
-        {
-            LConsole.WriteLine("can operate on?");
-            return selection.Any(a => a.GetComponent() is IComponentInWorld comp && (comp.Data.InputCount != 0 || comp.Data.OutputCount != 0));
-        }
+        public override bool CanOperateOn(ComponentSelection selection) =>
+            selection.Any(a => a.GetComponent() is IComponentInWorld comp &&
+            (comp.Data.InputCount != 0 || comp.Data.OutputCount != 0));
     }
 
     // private static SavedColorManager SavedColorManagerInstance;
