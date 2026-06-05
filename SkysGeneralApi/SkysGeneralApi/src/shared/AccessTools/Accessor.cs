@@ -72,9 +72,8 @@ public class StaticAccessor<R>
     {
         var setter = property.SetMethod;
         var valueExpression = Expression.Parameter(property.PropertyType, "value");
-        var callExpression = Expression.Call(null, setter);
-        var assignExpression = Expression.Assign(callExpression, valueExpression);
-        return Expression.Lambda<Action<VALUE>>(assignExpression, valueExpression).Compile();
+        var callExpression = Expression.Call(null, setter, valueExpression);
+        return Expression.Lambda<Action<VALUE>>(callExpression, valueExpression).Compile();
     }
 }
 public class StaticAccessor<T, R>(string name) : StaticAccessor<R>(typeof(T), name) { }
