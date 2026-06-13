@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using EccsLogicWorldAPI.Client.Hooks;
 using HarmonyLib;
 using JimmysUnityUtilities;
 using JimmysUnityUtilities.Collections;
@@ -10,7 +9,6 @@ using LogicAPI.Networking.Packets.PartialWorlds;
 using LogicWorld.Interfaces;
 using LogicWorld.PartialWorlds;
 using LogicWorld.SharedCode.PartialWorlds;
-using SkysGeneralLib.Shared.AccessTools;
 using UnityEngine;
 
 namespace SkysAntiPartialWorldCrash.Client;
@@ -19,15 +17,15 @@ namespace SkysAntiPartialWorldCrash.Client;
 public class SkysAntiPartialWorldCrash_ClientMod : ClientMod
 {
     public readonly static HashSet<Guid> ActiveGuids = [];
-    protected override void Initialize()
-    {
-        new Harmony(Manifest.ID).PatchAll();
-        WorldHook.worldUnloading += ActiveGuids.Clear;
-    }
+    protected override void Initialize() => new Harmony(Manifest.ID).PatchAll();
+
+    [HarmonyPatch(typeof(ClientPartialWorldsManager), nameof(ClientPartialWorldsManager.Dispose))]
+    [HarmonyPrefix] public static void DisposePatch() => ActiveGuids.Clear();
+
 
     [HarmonyPatch(typeof(ClientPartialWorldsManager), nameof(ClientPartialWorldsManager.GetPartialWorldAsyncAndDoSomethingWithIt))]
     [HarmonyPrefix]
-    public static bool Patch(
+    public static bool GetAsyncPatch(
         ClientPartialWorldsManager __instance,
         Guid partialWorldGuid,
         PartialWorldAcquiredAction successAction,
@@ -52,7 +50,7 @@ public class SkysAntiPartialWorldCrash_ClientMod : ClientMod
         CoroutineUtility.Run(TimeoutPartialWorldDownloadRoutine());
         IEnumerator TimeoutPartialWorldDownloadRoutine()
         {
-            yield return new WaitForSecondsRealtime(PartialWorldDownloadTimeoutSecondsAccess.Get());
+            yield return new WaitForSecondsRealtime(GetPartialWorldDownloadTimeoutSeconds());
             if (!__instance.PartialWorldIsStoredLocally(partialWorldGuid) && ActiveGuids.Contains(partialWorldGuid))
                 Instances.ErrorScreen.MegaTerribleCodingPractices_TriggerErrorScreen(new Exception($"Failed to download PartialWorld with guid {partialWorldGuid}"));
             ActiveGuids.Remove(partialWorldGuid);
@@ -61,5 +59,6 @@ public class SkysAntiPartialWorldCrash_ClientMod : ClientMod
     }
 
     // I dont want to add more mod dependencies so we're doing this from first principles!
-    public static readonly StaticAccessor<ClientPartialWorldsManager, float> PartialWorldDownloadTimeoutSecondsAccess = new("PartialWorldDownloadTimeoutSeconds");
+    [HarmonyPatch(typeof(ClientPartialWorldsManager), "PartialWorldDownloadTimeoutSeconds", MethodType.Getter)]
+    [HarmonyReversePatch] public static float GetPartialWorldDownloadTimeoutSeconds() => throw new NotImplementedException("It's a stub");
 }

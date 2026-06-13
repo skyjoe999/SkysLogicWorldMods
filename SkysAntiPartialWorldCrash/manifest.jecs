@@ -1,12 +1,10 @@
 ID: SkysAntiPartialWorldCrash
 Name: Anti-Partial World Crash
 Author: SkyBagel
-Version: 0.0.1
+Version: 0.0.2
 Priority: 0
 
 Type: ClientOnly
 
 Dependencies:
     - HarmonyForLogicWorld
-    - SkysGeneralLib
-    - EccsLogicWorldAPI
