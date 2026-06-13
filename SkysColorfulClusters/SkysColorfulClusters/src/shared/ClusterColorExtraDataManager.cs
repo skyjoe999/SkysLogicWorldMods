@@ -13,8 +13,6 @@ public static class ClusterColorExtraDataManager
 
     public static void SetupExtraData(ExtraData extraData)
     {
-        if (ExtraData is not null)
-            return;
         ExtraData = extraData.GetDataAccessor("SkysColorfulClusters.ClusterColors", "");
         ExtraData.RunAsSoonAsDataAvailable(_ => ReadFromExtraData());
     }
