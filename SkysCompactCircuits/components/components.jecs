@@ -1,0 +1,38 @@
+PackedCircuit:
+    #column: "Miscellaneous"
+    #category: "Routing"
+    clientCode: SkysCompactCircuits.Client.ClientCode.PackedCircuit
+    logicCode: SkysCompactCircuits.Server.PackedCircuit
+    prefabGenerator: SkysCompactCircuits.Client.ClientCode.PackedCircuitPrefabGenerator
+    placingRulesGenerator: SkysCompactCircuits.Client.ClientCode.PackedCircuitPlacingRulesGenerator
+
+ExportPeg:
+    column: "Miscellaneous"
+    category: "Export"
+    prefab:
+        blocks:
+            -
+                scale: (0.5, 0.3, 0.5)
+                #color: 00ffc0
+        inputs:
+            -
+                position: (0, 0.3, 0)
+                length: 0.7
+                wirePointHeight: 0.35
+    placingRules:
+        primaryEdgePositions:
+            - (0.5, 0)
+        secondaryEdgePositions:
+            - (0.5, 0)
+            - (0, 0)
+            - (1, 0)
+        secondaryGridPositions:
+            - (0, 0)
+            - (1/2, 0)
+            - (1, 0)
+            - (0, 1/2)
+            - (1/2, 1/2)
+            - (1, 1/2)
+            - (0, 1)
+            - (1/2, 1)
+            - (1, 1)

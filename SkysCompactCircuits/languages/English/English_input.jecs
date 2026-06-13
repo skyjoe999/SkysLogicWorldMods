@@ -1,0 +1,7 @@
+MHG.SettingsMenu.Pages.Controls.Headings.Sky's Compact Circuits: "Mod: Sky's Compact Circuits"
+MHG.SettingsMenu.Pages.Controls.Headings.SkysCompactCircuits: "Mod: Sky's Compact Circuits"
+
+FancyInput.Trigger.SkysCompactCircuits.Pack: "Pack/Unpack"
+FancyInput.Trigger.SkysCompactCircuits.Pack.Description: """
+    Convert a circuit board into a compact circuit or unpack an existing circuit.
+    """

@@ -1,0 +1,5 @@
+SkysCompactCircuits.SkysCompactCircuits:
+    InjectTriggersInto:
+        - MHG.BuildActions
+    Triggers:
+        - SkysCompactCircuits.Pack

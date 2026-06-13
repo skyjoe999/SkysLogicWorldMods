@@ -1,0 +1,12 @@
+ID: SkysCompactCircuits
+Name: Sky's Compact Circuits
+Author: SkyBagel
+Version: 0.1.0
+Priority: 7
+
+Dependencies:
+    - EccsLogicWorldAPI
+    - SkysGeneralLib
+    - HarmonyForLogicWorld
+ClientDependencies:
+    - EccsGuiBuilder
