@@ -6,6 +6,7 @@ using EccsGuiBuilder.Client.Wrappers;
 using EccsGuiBuilder.Client.Wrappers.AutoAssign;
 using FancyInput;
 using JimmysUnityUtilities;
+using LogicAPI;
 using LogicAPI.Data;
 using LogicUI;
 using LogicUI.ColorChoosing;
@@ -189,12 +190,14 @@ public class EditWireColor : ToggleableSingletonMenu<EditWireColor>, IAssignMyFi
 
         var hitInfo = PlayerCaster.CameraCast(Masks.Environment | Masks.Structure | Masks.Peg | Masks.Wire);
         var targetPeg = hitInfo.pAddress;
-        if (targetPeg.IsEmpty() && hitInfo.wAddress.IsNotEmpty())
+        if (targetPeg.IsEmpty() && hitInfo.wAddress.IsNotEmpty() && Instances.MainWorld.Data.AllWires.GetValueOrDefault(hitInfo.wAddress) is { } wire)
         {
-            var wAddress = Instances.MainWorld.Data.AllWires.GetValueOrDefault(hitInfo.wAddress)?.Point1;
-            if (wAddress?.IsInputAddress() ?? false) // ensure we always get the output peg
-                wAddress = Instances.MainWorld.Data.AllWires.GetValueOrDefault(hitInfo.wAddress)?.Point2;
-            targetPeg = wAddress ?? default;
+            // we could just check the peg type but this way works even if output wires get changed to be input colored
+            // (I now have a mod that does that so)
+            if (Instances.MainWorld.Data.Lookup(wire.Point1).StateID == wire.StateID)
+                targetPeg = wire.Point1;
+            else if (Instances.MainWorld.Data.Lookup(wire.Point2).StateID == wire.StateID)
+                targetPeg = wire.Point2;
         }
         if (targetPeg.IsEmpty())
             return false;
