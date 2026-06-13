@@ -1,0 +1,1 @@
+This mod just prevents the partial world error from being triggered on the main menu, crash screen, and in-game after you have re-loaded the save.
