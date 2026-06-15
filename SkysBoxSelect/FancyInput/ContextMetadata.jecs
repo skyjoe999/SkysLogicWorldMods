@@ -1,0 +1,5 @@
+SkysBoxSelect.SkysBoxSelect:
+    InjectTriggersInto:
+        - MHG.FirstPersonInteraction
+    Triggers:
+        - SkysBoxSelect.BoxSelect

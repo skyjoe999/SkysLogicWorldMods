@@ -1,0 +1,5 @@
+FancyInput.Trigger.SkysBoxSelect.BoxSelect : "Multi-Select Box"
+FancyInput.Trigger.SkysBoxSelect.BoxSelect.Description : """
+    Multi-selects all the components inside a box. Either hold the key and drag or press once to start an again to end.
+    Use the hotbar next and hotbar previous buttons to adjust the minimum height.
+    """
