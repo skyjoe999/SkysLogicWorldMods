@@ -123,11 +123,8 @@ public class BoxSelectState : GameState
         Highlighter.transform.position = InitialRotation * box.min + InitialPosition;
         Highlighter.transform.localScale = box.size;
 
-        var colliders = Physics.OverlapBox(InitialRotation * box.center + InitialPosition, box.extents, InitialRotation, Masks.Structure | Masks.Peg);
-        CurrentSelection = [
-            ..colliders.Select(collider => collider.GetComponent<ColliderReference>()?.ComponentAddress ?? default)
-                .Where(addr => addr.IsNotEmpty())
-        ];
+        CurrentSelection = [..ChunkOverlaps.OverlapBox(InitialRotation * box.center + InitialPosition, box.extents, InitialRotation, Masks.Structure | Masks.Peg).Select(collider => collider.cAddress)];
+        CurrentSelection.Remove(default); // no component C-0
     }
 
 
