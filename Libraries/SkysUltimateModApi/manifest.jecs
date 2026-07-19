@@ -1,0 +1,10 @@
+ID: SkysUltimateModApi
+Name: Sky's Ultimate Mod Api
+Author: SkyBagel
+Version: 0.0.3
+Priority: 80
+
+Type: Independent
+
+Dependencies:
+    - HarmonyForLogicWorld
