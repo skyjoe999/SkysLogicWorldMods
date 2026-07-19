@@ -1,0 +1,12 @@
+ID: SkysCondensedCablingCombiner
+Name: Sky's Condensed Cabling Combiner
+Author: Skyjoe66
+Version: 0.0.3
+Priority: -1
+
+Dependencies:
+    - SkysGeneralLib
+    - SkysCondensedCablingLib
+    - SkysUltimateModApi # This is here because my IDE hates me for doing everything wrong TT
+ClientDependencies:
+    - EccsGuiBuilder

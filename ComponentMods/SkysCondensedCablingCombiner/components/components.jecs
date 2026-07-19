@@ -1,0 +1,7 @@
+Combiner:
+    column: "Miscellaneous"
+    category: "Routing"
+    prefabGenerator: SkysCondensedCablingCombiner.Client.CombinerPrefabGenerator  
+    clientCode: SkysCondensedCablingCombiner.Client.Combiner
+    logicCode: SkysCondensedCablingCombiner.Server.Combiner
+    placingRulesGenerator: SkysCondensedCablingCombiner.Client.CombinerPlacementRulesGenerator
