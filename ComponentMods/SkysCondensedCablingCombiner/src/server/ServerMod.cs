@@ -4,7 +4,6 @@ using LogicAPI.Server;
 using LogicWorld.Server.Circuitry;
 using SkysCondensedCablingCombiner.Shared;
 using SkysCondensedCablingLib.Server;
-using SkysGeneralLib.Server;
 
 namespace SkysCondensedCablingCombiner.Server;
 
@@ -19,7 +18,7 @@ public class Combiner : LogicComponent<ICombinerData>, IHasSuperPegs
 
     public override void SetDataDefaultValues() => Data.Initialize();
 
-    (int, int) PreviousData = default;
+    public (int, int) PreviousData = default;
     public override void OnCustomDataUpdated()
     {
         if (PreviousData == (Inputs.Count - 1, Data.BitsPerInput))
@@ -32,21 +31,12 @@ public class Combiner : LogicComponent<ICombinerData>, IHasSuperPegs
             return;
         }
 
-        foreach (var input in Inputs)
-            if (input is SuperInputPeg {SCluster: {} sCluster} super && sCluster.Size != super.BaseSize)
-                SuperClusterFactory.Create(super.Cluster);
-
-        for (int i = 0; i < Inputs.Count; i++)
-            if ((InputSuperSize(i) > 0) != Inputs[i] is SuperInputPeg)
-            {
-                Services.ICircuitryManager.CleanModifyPegCounts(Address, () => { });
-                OnCustomDataUpdated();
-                return;
-            }
+        // Call this any time InputSuperSize changes
+        this.EnsureSuperPegsAreCorrect();
 
         PreviousData = (Inputs.Count - 1, Data.BitsPerInput);
 
-        var primary = Inputs[0] as SuperInputPeg;
+        var primary = Inputs[0] as SuperInputPeg; // Should never be null but I fear my own code...
         foreach (var (other, channel) in primary?.PartialPhasicLinks.ToList() ?? [])
             primary.RemovePhasicLinkWith(other, channel);
 

@@ -8,7 +8,7 @@ public static class SuperClusterFactory
 {
     public static Cluster Create(Cluster cluster, int minSize = 0)
     {
-        if (cluster is null || new SuperCluster(cluster, minSize) is not { Size: > 0 } super)
+        if (cluster is null || new SuperCluster(cluster, minSize) is not { Size: > 0 } super || (cluster is SuperCluster s && s.Size == super.Size && s.Family == super.Family))
             return cluster;
 
         cluster.Destroy();
