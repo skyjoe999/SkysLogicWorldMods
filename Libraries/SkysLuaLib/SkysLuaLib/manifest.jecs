@@ -1,7 +1,7 @@
 ID: SkysLuaLib
 Name: Sky's Lua Library
 Author: Skyjoe66
-Version: 0.1.0
+Version: 0.2.0
 Priority: 86
 
-Type: ServerOnly
+Type: Independent

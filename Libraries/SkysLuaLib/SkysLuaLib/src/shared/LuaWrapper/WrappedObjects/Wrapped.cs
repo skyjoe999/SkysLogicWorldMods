@@ -1,7 +1,7 @@
 using System;
 using Lua;
 
-namespace SkysLuaLib.Server.LuaWrapper.WrappedObjects;
+namespace SkysLuaLib.Shared;
 
 public class Wrapped : IWrapped
 {

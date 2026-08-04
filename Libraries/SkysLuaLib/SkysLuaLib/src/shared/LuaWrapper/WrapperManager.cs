@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Lua;
-using SkysLuaLib.Server.LuaWrapper.Wrappers;
 
-namespace SkysLuaLib.Server.LuaWrapper;
+namespace SkysLuaLib.Shared;
 
 public static class WrapperManager
 {

@@ -4,7 +4,7 @@
 
 // using System;
 
-// namespace SkysLuaLib.Server.LuaWrapper.Wrappers;
+// namespace SkysLuaLib.Shared;
 
 // public class EnumerableWrapper(Type type, Wrapper ParentWrapper = null)
 //   : Wrapper(type, ParentWrapper)

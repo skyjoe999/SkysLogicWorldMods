@@ -2,16 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Lua;
-using SkysLuaLib.Server.LuaWrapper.ReflectionCache;
-using SkysLuaLib.Server.LuaWrapper.WrappedObjects;
 
-namespace SkysLuaLib.Server.LuaWrapper.Wrappers;
+namespace SkysLuaLib.Shared;
 
 public class Wrapper
 {
     public Type type;
     public readonly Wrapper ParentWrapper;
-    protected readonly Dictionary<string, CachedLookup> _cache = new();
+    protected readonly Dictionary<string, CachedLookup> Cache = [];
     public readonly LuaValue __index;
     public readonly LuaValue __newindex;
 
@@ -50,11 +48,11 @@ public class Wrapper
             throw IndexError(obj, key);
 
         // TODO: Add hierarchy search
-        if (!_cache.TryGetValue(_key, out var lookup))
+        if (!Cache.TryGetValue(_key, out var lookup))
         {
             // key has not been cached (or doesn't exist)
             if (!TryCacheNewLookup(_key, out lookup)) throw IndexError(obj, key);
-            _cache[_key] = lookup;
+            Cache[_key] = lookup;
         }
 
         return lookup.Get(obj.value);
@@ -71,11 +69,11 @@ public class Wrapper
             throw NewIndexError(obj, key, value);
 
         // TODO: Add hierarchy search
-        if (!_cache.TryGetValue(_key, out var lookup))
+        if (!Cache.TryGetValue(_key, out var lookup))
         {
             // key has not been cached (or doesn't exist)
             if (!TryCacheNewLookup(_key, out lookup)) throw NewIndexError(obj, key, value);
-            _cache[_key] = lookup;
+            Cache[_key] = lookup;
         }
 
         lookup.Set(obj.value, value);
@@ -98,10 +96,10 @@ public class Wrapper
         {
             HasGetter = TryCacheNewLookup("Get", out var lookup);
             if (HasGetter.Value)
-                _cache["Get"] = lookup;
+                Cache["Get"] = lookup;
         }
 
-        if (HasGetter.Value && ((MethodLookup)_cache["Get"]).Method.TryCall(obj.value, [key], out ret, out _))
+        if (HasGetter.Value && ((MethodLookup)Cache["Get"]).Method.TryCall(obj.value, [key], out ret, out _))
             return true;
 
         ret = LuaValue.Nil;
@@ -114,12 +112,12 @@ public class Wrapper
         {
             HasSetter = TryCacheNewLookup("Set", out var lookup);
             if (HasSetter.Value)
-                _cache["Set"] = lookup;
+                Cache["Set"] = lookup;
         }
 
         exception = null;
         if (HasSetter.Value &&
-            ((MethodLookup)_cache["Set"]).Method.TryCall(obj.value, [key, value], out _, out exception))
+            ((MethodLookup)Cache["Set"]).Method.TryCall(obj.value, [key, value], out _, out exception))
             return true;
         if (exception is KeyNotFoundException) exception = null;
         return false;
@@ -130,9 +128,9 @@ public class Wrapper
     public virtual Wrapper CreateSubWrapper(Type new_type)
     {
         // TODO: Add enumerable support
-        if (new_type.IsAssignableTo(typeof(IList)))
+        if (typeof(IList).IsAssignableFrom(new_type))
             return new ListWrapper(new_type, this);
-        if (new_type.IsAssignableTo(typeof(IReadOnlyList<object>)))
+        if (typeof(IReadOnlyList<object>).IsAssignableFrom(new_type))
             return new ReadableListWrapper(new_type, this);
 
         return new Wrapper(new_type, this);

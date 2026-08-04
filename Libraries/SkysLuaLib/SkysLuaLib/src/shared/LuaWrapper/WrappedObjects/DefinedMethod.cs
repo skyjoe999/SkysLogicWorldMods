@@ -1,7 +1,7 @@
 using System.Reflection;
 using Lua;
 
-namespace SkysLuaLib.Server.LuaWrapper.WrappedObjects;
+namespace SkysLuaLib.Shared;
 
 public class DefinedMethod(MethodInfo info) : Callable(info, info.Name + ":__call")
 {

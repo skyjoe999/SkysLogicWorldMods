@@ -2,7 +2,7 @@ using System.Linq;
 using JimmysUnityUtilities;
 using Lua;
 
-namespace SkysLuaLib.Server.LuaWrapper;
+namespace SkysLuaLib.Shared;
 
 public static class LuaPretty
 {

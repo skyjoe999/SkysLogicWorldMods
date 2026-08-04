@@ -1,15 +1,13 @@
 // // If you want to use this component, you need to:
 // // 1. uncomment this file
 // // 2. uncomment the component file
-// // 3. and remove the ServerOnly line from the manifest.jecs
 
 // using System;
 // using JimmysUnityUtilities;
 // using LogicWorld.Server.Circuitry;
 // using Lua;
 // using Lua.Standard;
-// using SkysLuaLib.Server.LuaWrapper;
-// using SkysLuaLib.Server.LuaWrapper.WrappedObjects;
+// using SkysLuaLib.Shared;
 
 // namespace SkysLuaLib.Server;
 
@@ -72,7 +70,7 @@
 
 //         state.Environment["component"] = new Wrapped(this);
 
-//         state.Environment["using"] = UsingTypeLoader.usingFunc;
+//         state.Environment["using"] = UsingTypeLoader.UsingFunc;
 //         state.Environment["float"] = new LuaFunction("float", (context, _)
 //             => context.ReturnTask(new Wrapped(context.GetArgument<float>(0)))
 //         );

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using LogicLog;
 using Lua;
 
-namespace SkysLuaLib.Server.LuaWrapper.WrappedObjects;
+namespace SkysLuaLib.Shared;
 
 public abstract class Callable : Wrapped
 {
@@ -15,8 +15,7 @@ public abstract class Callable : Wrapped
     {
     }
 
-    protected Callable(object value, string name)
-        : base(value) =>
+    protected Callable(object value, string name) : base(value) =>
         Metatable!["__call"] = new LuaFunction(Name = name, __call);
 
     public abstract LuaValue call(object instance, object[] arguments);

@@ -3,9 +3,8 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using Lua;
-using SkysLuaLib.Server.LuaWrapper.WrappedObjects;
 
-namespace SkysLuaLib.Server.LuaWrapper.ReflectionCache;
+namespace SkysLuaLib.Shared;
 
 public interface CachedLookup
 {
@@ -40,7 +39,7 @@ public class MethodLookup(Callable method) : CachedLookup
     public LuaValue Get(object obj) => Method;
 
     public void Set(object obj, object value) =>
-        throw new ReadOnlyException($"Cannot set method '{Method.Name}'");
+        throw new($"Cannot set method '{Method.Name}'");
 
     public static CachedLookup Cache(string key, Type type)
     {
@@ -52,7 +51,7 @@ public class MethodLookup(Callable method) : CachedLookup
         catch (AmbiguousMatchException)
         {
             var infos = type.GetMethods().Where(info => info.Name == key).ToArray();
-            if (infos.Length != 0) return new MethodLookup(new AmbiguousMethod(infos));
+            if (infos.Length != 0) return new MethodLookup(new AmbiguousMethod(infos, type));
         }
 
         return null;

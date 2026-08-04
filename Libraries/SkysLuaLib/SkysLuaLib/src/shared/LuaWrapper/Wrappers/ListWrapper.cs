@@ -1,8 +1,7 @@
 using System;
 using System.Collections;
-using SkysLuaLib.Server.LuaWrapper.WrappedObjects;
 
-namespace SkysLuaLib.Server.LuaWrapper.Wrappers;
+namespace SkysLuaLib.Shared;
 
 public class ListWrapper(Type type, Wrapper parent = null)
     : ReadableListWrapper(type, parent)

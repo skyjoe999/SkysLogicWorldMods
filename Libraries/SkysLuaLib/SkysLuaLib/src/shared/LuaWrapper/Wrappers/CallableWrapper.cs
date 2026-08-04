@@ -1,9 +1,8 @@
 using System;
 using System.Reflection;
 using Lua;
-using SkysLuaLib.Server.LuaWrapper.WrappedObjects;
 
-namespace SkysLuaLib.Server.LuaWrapper.Wrappers;
+namespace SkysLuaLib.Shared;
 
 public class CallableWrapper(Type type, Wrapper parent = null)
     : Wrapper(type, parent)

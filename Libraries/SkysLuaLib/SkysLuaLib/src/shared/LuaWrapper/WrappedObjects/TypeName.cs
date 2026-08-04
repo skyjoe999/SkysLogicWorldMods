@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Lua;
 
-namespace SkysLuaLib.Server.LuaWrapper.WrappedObjects;
+namespace SkysLuaLib.Shared;
 
 public class TypeName : Callable
 {
@@ -45,12 +45,12 @@ public class TypeName : Callable
 
             // Error time
             var sb = new StringBuilder()
-                .Append("Could not match arguments ")
-                .Append(arguments.AsListString(a => $"({a.GetType()}){a}"))
-                .AppendLine()
+                .Append("Could not match arguments [")
+                .Append(string.Join(", ", arguments.Select(arg => $"({arg.GetType().Name}){arg}")))
+                .AppendLine("]")
                 .Append("Candidates include: ");
             foreach (var i in type.GetConstructors())
-                sb.AppendLine().Append("\t" + i.GetParameters().AsListString(p => p.ParameterType.Name));
+                sb.AppendLine().Append("\t[" + string.Join(", ", i.GetParameters().Select(p => p.ParameterType.Name)) + "]");
             throw new ArgumentException(sb.ToString());
         }
     }

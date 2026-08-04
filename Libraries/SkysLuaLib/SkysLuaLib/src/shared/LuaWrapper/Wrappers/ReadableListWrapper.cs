@@ -3,9 +3,8 @@
 using System;
 using System.Collections;
 using Lua;
-using SkysLuaLib.Server.LuaWrapper.WrappedObjects;
 
-namespace SkysLuaLib.Server.LuaWrapper.Wrappers;
+namespace SkysLuaLib.Shared;
 
 public class ReadableListWrapper(Type type, Wrapper parent = null)
     : Wrapper(type, parent)
