@@ -9,6 +9,7 @@ using BepInEx.AssemblyPublicizer;
 using HarmonyLib;
 using JECS;
 using JimmysUnityUtilities;
+using LogicAPI;
 using LogicAPI.Modding;
 using LogicWorld.SharedCode.Modding.Compilation;
 using Microsoft.CodeAnalysis;
@@ -71,7 +72,7 @@ public static class UltimateModCompiler
     public static bool CompilePatch(string name, IModFiles files, ModSide side, out ModCompiler.CompileResult __result)
     {
         __result = default;
-        if (!files.TryGetFile("Manifest.jecs", out var manifestFile))
+        if (!files.TryGetFile(ModPaths.Manifest, out var manifestFile))
             return true; // should never happen
 
         var dependencies = manifestFile.ReadAsJecs().GetAsObject<ModManifest>().GetDependenciesForSide(side);
