@@ -39,13 +39,12 @@ public static class WrapperManager
     public static LuaValue Wrap(object obj, Type type) => GetWrapper(type).Wrap(obj!);
 
     public static void RegisterWrapper(Type type, Wrapper wrapper) => loadedTypes.Add(type, wrapper);
-    public static void RegisterWrapper(Wrapper wrapper) => loadedTypes.Add(wrapper.type, wrapper);
+    public static void RegisterWrapper(Wrapper wrapper) => loadedTypes.Add(wrapper.WrappedType, wrapper);
 
     private class NullType; // Because null isn't really a type so it can't be a key
 
     private class NonWrappable<T>() : Wrapper(typeof(T))
     {
-        // ReSharper disable once MemberHidesStaticFromOuterClass
         public override LuaValue Wrap(object obj) => LuaValue.FromObject(obj);
     }
 }

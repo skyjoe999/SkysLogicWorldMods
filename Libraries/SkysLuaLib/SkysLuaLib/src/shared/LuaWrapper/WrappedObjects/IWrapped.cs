@@ -5,16 +5,15 @@ namespace SkysLuaLib.Shared;
 
 public interface IWrapped : ILuaUserData
 {
-    object value { get; }
+    object Value { get; }
 
     public static LuaTable GenerateDefaultTable(Type type) =>
         new()
         {
-            ["__index"] = WrapperManager.GetWrapper(type).__index,
-            ["__newindex"] = WrapperManager.GetWrapper(type).__newindex,
+            ["__index"] = WrapperManager.GetWrapper(type).IndexFunc,
+            ["__newindex"] = WrapperManager.GetWrapper(type).NewindexFunc,
             ["__tostring"] = new LuaFunction(type.Name + ":ToString",
-                (context, _) =>
-                    context.ReturnTask(Callable.unpackArgument(context.Arguments[0]).ToString())
+                async (context, _) => context.Return(Callable.UnpackArgument(context.Arguments[0]).ToString())
             ),
         };
 }

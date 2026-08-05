@@ -7,39 +7,38 @@ namespace SkysLuaLib.Shared;
 
 public class Wrapper
 {
-    public Type type;
+    public Type WrappedType;
     public readonly Wrapper ParentWrapper;
-    protected readonly Dictionary<string, CachedLookup> Cache = [];
-    public readonly LuaValue __index;
-    public readonly LuaValue __newindex;
+    protected readonly Dictionary<string, ICachedLookup> Cache = [];
+    public readonly LuaFunction IndexFunc;
+    public readonly LuaFunction NewindexFunc;
 
     protected internal Wrapper(Type type, Wrapper parent = null)
     {
-        // LConsole.WriteLine("New Wrapper: " + type.FullName);
-        this.type = type;
+        WrappedType = type;
         WrapperManager.RegisterWrapper(type, this);
         ParentWrapper = parent ?? WrapperManager.GetWrapper(type.BaseType);
 
-        __index = new LuaFunction(type.Name + ":__index", (context, _)
+        IndexFunc = new LuaFunction(type.Name + ":__index", (context, _)
             => context.ReturnTask(
-                index(
+                Index(
                     context.GetArgument<IWrapped>(0),
-                    Callable.unpackArgument(context.Arguments[1])
+                    Callable.UnpackArgument(context.Arguments[1])
                 )
             ));
-        __newindex = new LuaFunction(type.Name + ":__newindex", (context, _)
+        NewindexFunc = new LuaFunction(type.Name + ":__newindex", (context, _)
             =>
         {
-            newIndex(
+            NewIndex(
                 context.Arguments[0].Read<IWrapped>(),
-                Callable.unpackArgument(context.Arguments[1]),
-                Callable.unpackArgument(context.Arguments[2])
+                Callable.UnpackArgument(context.Arguments[1]),
+                Callable.UnpackArgument(context.Arguments[2])
             );
             return context.ReturnTask();
         });
     }
 
-    protected virtual LuaValue index(IWrapped obj, object key)
+    protected virtual LuaValue Index(IWrapped obj, object key)
     {
         // Look for a Get() function
         if (TryInstanceGetter(obj, key, out var ret)) return ret;
@@ -55,11 +54,11 @@ public class Wrapper
             Cache[_key] = lookup;
         }
 
-        return lookup.Get(obj.value);
+        return lookup.Get(obj.Value);
     }
 
 
-    protected virtual void newIndex(IWrapped obj, object key, object value)
+    protected virtual void NewIndex(IWrapped obj, object key, object value)
     {
         // Look for a Set() function
         if (TryInstanceSetter(obj, key, value, out var exception)) return;
@@ -76,14 +75,14 @@ public class Wrapper
             Cache[_key] = lookup;
         }
 
-        lookup.Set(obj.value, value);
+        lookup.Set(obj.Value, value);
     }
 
-    protected virtual bool TryCacheNewLookup(string key, out CachedLookup newLookup)
+    protected virtual bool TryCacheNewLookup(string key, out ICachedLookup newLookup)
     {
-        if ((newLookup = MethodLookup.Cache(key, type)) is not null) return true;
-        if ((newLookup = PropertyLookup.Cache(key, type)) is not null) return true;
-        if ((newLookup = FieldLookup.Cache(key, type)) is not null) return true;
+        if ((newLookup = MethodLookup.Cache(key, WrappedType)) is not null) return true;
+        if ((newLookup = PropertyLookup.Cache(key, WrappedType)) is not null) return true;
+        if ((newLookup = FieldLookup.Cache(key, WrappedType)) is not null) return true;
         return false;
     }
 
@@ -99,7 +98,7 @@ public class Wrapper
                 Cache["Get"] = lookup;
         }
 
-        if (HasGetter.Value && ((MethodLookup)Cache["Get"]).Method.TryCall(obj.value, [key], out ret, out _))
+        if (HasGetter.Value && ((MethodLookup)Cache["Get"]).Method.TryCall(obj.Value, [key], out ret, out _))
             return true;
 
         ret = LuaValue.Nil;
@@ -117,13 +116,13 @@ public class Wrapper
 
         exception = null;
         if (HasSetter.Value &&
-            ((MethodLookup)Cache["Set"]).Method.TryCall(obj.value, [key, value], out _, out exception))
+            ((MethodLookup)Cache["Set"]).Method.TryCall(obj.Value, [key, value], out _, out exception))
             return true;
         if (exception is KeyNotFoundException) exception = null;
         return false;
     }
 
-    public virtual LuaValue Wrap(object obj) => new Wrapped(obj, type);
+    public virtual LuaValue Wrap(object obj) => new Wrapped(obj, WrappedType);
 
     public virtual Wrapper CreateSubWrapper(Type new_type)
     {
@@ -137,7 +136,7 @@ public class Wrapper
     }
 
     protected virtual Exception IndexError(IWrapped obj, object key)
-        => new KeyNotFoundException($"Key '{key}' not found on type '{type}'");
+        => new KeyNotFoundException($"Key '{key}' not found on type '{WrappedType}'");
 
     protected virtual Exception NewIndexError(IWrapped obj, object key, object value) => IndexError(obj, key);
 }

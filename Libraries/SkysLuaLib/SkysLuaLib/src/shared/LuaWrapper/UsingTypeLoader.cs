@@ -14,7 +14,7 @@ public class UsingTypeLoader
 
     static UsingTypeLoader()
     {
-        // Load lazily incase we want assemblies from other mods.
+        // Load lazily in case we want assemblies from other mods.
         _Namespaces = new(() => AppDomain.CurrentDomain
             .GetAssemblies()
             .SelectMany(assembly => assembly.GetTypes())
@@ -24,9 +24,9 @@ public class UsingTypeLoader
         );
     }
 
-    public static LuaFunction UsingFunc => new("using", __call);
+    public static LuaFunction UsingFunc => new("using", Call);
 
-    private static ValueTask<int> __call(LuaFunctionExecutionContext context, CancellationToken ct)
+    private static ValueTask<int> Call(LuaFunctionExecutionContext context, CancellationToken ct)
     {
         return context.ReturnTask(new Span<LuaValue>(
             [.. context.Arguments
@@ -39,10 +39,14 @@ public class UsingTypeLoader
         {
             if (!Namespaces.TryGetValue(name, out var list))
                 return LuaValue.Nil;
+
             if (context.State.Environment.ContainsKey(name))
                 return context.State.Environment[name];
-            var table = new LuaTable();
-            foreach (var t in list) context.State.Environment[t.Name] = table[t.Name] = TypeName.For(t);
+
+            var table = new LuaTable(arrayCapacity: 0, dictionaryCapacity: list.Count);
+            foreach (var t in list)
+                context.State.Environment[t.Name] = table[t.Name] = TypeName.For(t);
+
             context.State.Environment[name] = table;
             return table;
         }

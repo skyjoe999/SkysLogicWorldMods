@@ -7,31 +7,49 @@ using Lua;
 
 namespace SkysLuaLib.Shared;
 
-// TODO: Refactor out non ambiguous methods
+// TODO: Add "SemiAmbiguousMethod" which checks argument count first.
 // If anyone has a nicer solution im all ears
-public class AmbiguousMethod : Callable
+public class AmbiguousMethod(string MethodName, Type BaseType) : Callable(null, MethodName + ":__call")
 {
-    private readonly (TypeMatcher, MethodInfo)[] InfosByTypes;
-    private readonly (Type type, string name) Method;
+    private readonly Dictionary<Type[], (MethodBase method, Func<object[], object[]> conversion)> MethodsByTypes = new(new TypeMatcher());
+    private readonly bool IsConstructor = MethodName == BaseType.Name;
 
-    public AmbiguousMethod(MethodInfo[] infos, Type type) : base(null, infos[0].Name + ":__call")
-    {
-        Method = (type, infos[0].Name);
-        InfosByTypes = infos.Select(i => (new TypeMatcher(i), i)).ToArray();
-    }
-
-
-    public override LuaValue call(object instance, object[] arguments)
+    public override LuaValue Call(object instance, object[] arguments)
     {
         // TODO: Add out parameters
         // TODO: Add generic parameters
         // Maybe this was a mistake?
-        var types = arguments.Select(a => a?.GetType()).Prepend(instance.GetType()).ToArray();
-        foreach (var (matcher, info) in InfosByTypes)
-            if (matcher.Match(types))
-                return WrapperManager.Wrap(matcher.IsStatic ? info.Invoke(null, [instance, .. arguments]) : info.Invoke(instance, arguments));
+        var types = arguments
+            .Select(argument => argument?.GetType() ?? typeof(object))
+            .ToArray();
 
-        throw new ArgumentException(ErrorMessage(types));
+        if (!MethodsByTypes.TryGetValue(types, out var value))
+            value = MethodsByTypes[types] =
+                GetMethodFor(types) is { } m ? (m, null) :
+                GetMethodByAliasing() ??
+                throw new ArgumentException(ErrorMessage(types));
+
+        if (value.conversion is not null)
+            arguments = value.conversion(arguments);
+
+        return WrapperManager.Wrap(value.method is ConstructorInfo constructor
+            ? constructor.Invoke(arguments)
+            : value.method.Invoke(instance, arguments));
+
+        (MethodBase method, Func<object[], object[]>)? GetMethodByAliasing()
+        {
+            var aliasTypes = types.Select(type => type == typeof(double) || type == typeof(float) ? typeof(int) : type).ToArray();
+            if (GetMethodFor(aliasTypes) is not { } func)
+                return null;
+
+            var doConversion = aliasTypes.Zip(types, (a, b) => a != b ? a : null).ToArray();
+
+            return (func, (args) => [.. args.Zip(doConversion, (arg, type) => type is not null ? Convert.ChangeType(arg, type) : arg)]);
+        }
+
+        MethodBase GetMethodFor(Type[] types) => !IsConstructor
+            ? BaseType.GetMethod(MethodName, types)
+            : BaseType.GetConstructor(types);
     }
 
     private string ErrorMessage(Type[] types)
@@ -41,74 +59,22 @@ public class AmbiguousMethod : Callable
             .Append(string.Join(", ", types.Select(type => type.Name)))
             .AppendLine("]")
             .Append("Candidates include: ");
-        foreach (var (matcher, _) in InfosByTypes)
-            sb.AppendLine().Append("\t" + matcher.ToCandidateString());
+        foreach (var info in false ? BaseType.GetMethods().Where(info => info.Name == Name).Cast<MethodBase>() : BaseType.GetConstructors())
+            sb.AppendLine().Append("\t" + CandidateString(info));
         return sb.ToString();
     }
 
-    private readonly record struct TypeMatcher
+    private static string CandidateString(MethodBase info)
     {
-        public readonly bool IsStatic;
-        private readonly int RequiredLength;
-        private readonly List<ParameterInfo> ParameterList;
+        var ParameterList = info.GetParameters().ToList();
+        var RequiredLength = ParameterList.FindIndex(p => p.IsOptional);
+        if (RequiredLength == -1) RequiredLength = ParameterList.Count;
+        return RequiredLength + "[" + (info.IsStatic ? "" : "_, ") + string.Join(", ", ParameterList.Select((t, i) => (i < RequiredLength ? "" : "?") + t.ParameterType.Name)) + "]";
+    }
 
-        public TypeMatcher(MethodInfo info)
-        {
-            IsStatic = info.IsStatic;
-            ParameterList = [.. info.GetParameters()];
-            RequiredLength = ParameterList.FindIndex(p => p.IsOptional);
-            if (RequiredLength == -1) RequiredLength = ParameterList.Count;
-        }
-
-
-        public bool Match(Type[] types)
-        {
-            var count = types.Length;
-            var _types = types.AsEnumerable();
-            if (!IsStatic)
-            {
-                count -= 1;
-                _types = _types.Skip(1);
-            }
-
-            if (RequiredLength > count) return false;
-            if (ParameterList.Count < count) return false;
-
-            return ParameterList.Zip(_types, (a, b) => (b, a)).All(AreCompatible);
-        }
-        // public bool convert(object[] args)
-        // {
-        //    foreach (var (i, t) in ParameterList.Zip(types, (a, b) => (a, b)))
-        //         if (!AreCompatible(t, i))
-        //             return false;
-        //     return true;
-        // }
-
-
-        private static bool AreCompatible((Type t, ParameterInfo i) val)
-        {
-            return AreCompatible(val.t, val.i.ParameterType.IsEnum ? val.i.ParameterType.GetEnumUnderlyingType() : val.i.ParameterType);
-        }
-
-        private static bool AreCompatible(Type t, Type i)
-        {
-            // return t == i || t.IsSubclassOf(i);
-            // return i.IsAssignableFrom(t) || (isNumeric(t) && isNumeric(i));
-            return i.IsAssignableFrom(t);
-        }
-
-        // private static bool isNumeric(Type t)
-        // {
-        //     return t == typeof(int) ||
-        //            t == typeof(float) ||
-        //            t == typeof(bool) ||
-        //            t == typeof(double);
-        // }
-
-        public string ToCandidateString()
-        {
-            var rl = RequiredLength;
-            return rl + "[" + (IsStatic ? "" : "_, ") + string.Join(", ", ParameterList.Select((t, i) => (i < rl ? "" : "?") + t.ParameterType.Name)) + "]";
-        }
+    private class TypeMatcher : IEqualityComparer<Type[]>
+    {
+        public bool Equals(Type[] x, Type[] y) => x.SequenceEqual(y);
+        public int GetHashCode(Type[] obj) => obj.Aggregate(0, HashCode.Combine);
     }
 }

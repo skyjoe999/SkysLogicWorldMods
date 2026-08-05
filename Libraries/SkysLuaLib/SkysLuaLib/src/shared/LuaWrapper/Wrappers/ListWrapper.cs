@@ -13,7 +13,7 @@ public class ListWrapper(Type type, Wrapper parent = null)
         exception = null;
 
         if (!IsIndex(key, out var _key)
-            || obj.value is not IList list
+            || obj.Value is not IList list
             || IsOOB(obj, _key, list, key)) return false;
 
         list[_key] = value;

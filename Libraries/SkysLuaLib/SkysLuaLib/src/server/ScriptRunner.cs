@@ -20,15 +20,16 @@
 
 //         if not component.Inputs[1].On then return; end
 
-//         -- Warning: Does not persist on reload
+//         -- Warning: Variables do not persist on reload
+//         -- (I could use the On value of the output or custom data here but then I couldn't give the warning)
 //         state = not state
 
 //         component.Outputs[1].On = state
 
 //         local color = nil
-//         if state 
+//         if state
 //         then color = Colors.CircuitOn24
-//         else color = Color24(int(0))
+//         else color = Color24(0)
 //         end
 
 //         component.Data.LabelColor = color
@@ -70,13 +71,8 @@
 
 //         state.Environment["component"] = new Wrapped(this);
 
+//         state.Environment["Logger"] = LuaValue.FromObject(Logger);
 //         state.Environment["using"] = UsingTypeLoader.UsingFunc;
-//         state.Environment["float"] = new LuaFunction("float", (context, _)
-//             => context.ReturnTask(new Wrapped(context.GetArgument<float>(0)))
-//         );
-//         state.Environment["int"] = new LuaFunction("int", (context, _)
-//             => context.ReturnTask(new Wrapped(context.GetArgument<int>(0)))
-//         );
 //         state.OpenStandardLibraries();
 //     }
 
@@ -89,6 +85,7 @@
 //         }
 //         catch (Exception e)
 //         {
+//             Logger.Error("Uncaught Exception");
 //             Logger.Exception(e);
 //         }
 //     }

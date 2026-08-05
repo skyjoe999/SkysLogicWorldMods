@@ -6,18 +6,18 @@ namespace SkysLuaLib.Shared;
 
 public static class LuaPretty
 {
-    public static string Pretty(this LuaValue v, int depth = -1)
+    public static string Pretty(this LuaValue value, int depth = -1)
     {
-        switch (v.Type)
+        switch (value.Type)
         {
             case LuaValueType.Table:
-                v.TryRead<LuaTable>(out var t);
+                value.TryRead<LuaTable>(out var t);
                 return depth != 0 ? t.Pretty(depth - 1) : t.ToString();
             case LuaValueType.Function:
-                v.TryRead<LuaFunction>(out var f);
+                value.TryRead<LuaFunction>(out var f);
                 return f.Pretty();
             case LuaValueType.UserData:
-                return "userdata : " + v.Read<object>();
+                return "userdata : " + value.Read<object>();
             case LuaValueType.LightUserData:
             case LuaValueType.Nil:
             case LuaValueType.Boolean:
@@ -25,7 +25,7 @@ public static class LuaPretty
             case LuaValueType.Number:
             case LuaValueType.Thread:
             default:
-                return v.ToString();
+                return value.ToString();
         }
     }
 
