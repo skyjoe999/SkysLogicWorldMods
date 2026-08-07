@@ -48,7 +48,7 @@ public class SkysCondensedCablingLib_ClientMod : ClientMod
             SuperWireBlocker.ClusterConnectionID[stateID] = _connectionID;
         else
             SuperWireBlocker.ClusterConnectionID.Remove(stateID);
-        if (stateID >= 0)
+        if (stateID >= 0 && (Instances.MainWorld.CircuitStates is not FastCircuitStatesManager fast || stateID < fast?.CurrentArrayLengths))
             Instances.MainWorld.CircuitStates.SetStateAt(stateID, Instances.MainWorld.CircuitStates.GetStateAt(stateID));
     }
 }
