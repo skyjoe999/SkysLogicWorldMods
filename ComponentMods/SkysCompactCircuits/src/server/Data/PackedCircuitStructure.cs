@@ -7,7 +7,9 @@ namespace SkysCompactCircuits.Server;
 public struct PackedCircuitStructure
 {
     public PartialWorldData AdditionWorld;
-    public ushort[] ExportIndices;
+    public PegAddress[] ExportAddresses;
     public ComponentAddress[] OriginalChildAddresses;
     public Guid AdditionGuid;
+    public PartialWorldData UnpackingWorld;
+    public Guid UnpackingGuid;
 }

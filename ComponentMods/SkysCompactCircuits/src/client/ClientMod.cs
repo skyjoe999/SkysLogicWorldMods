@@ -2,23 +2,21 @@ using System;
 using EccsLogicWorldAPI.Client.Hooks;
 using FancyInput;
 using HarmonyLib;
+using LICC;
 using LogicAPI.Client;
 using LogicWorld;
-using LogicWorld.Interfaces;
-using LogicWorld.Networking.Handlers;
 using LogicWorld.SharedCode.Components;
 using SkysCompactCircuits.Client.ClientCode;
 using SkysCompactCircuits.Client.Gui;
 using SkysCompactCircuits.Client.Keybindings;
 using SkysCompactCircuits.Shared;
+using SkysCompactCircuits.Shared.Packets;
+using SkysGeneralLib.Shared.Networking;
 
 namespace SkysCompactCircuits.Client;
 
-[HarmonyPatch]
 public class SkysCompactCircuits_ClientMod : ClientMod
 {
-    public const string PackedCircuitTextID = "SkysCompactCircuits.PackedCircuit";
-    public const string ExportPegTextID = "SkysCompactCircuits.ExportPeg";
     protected override void Initialize()
     {
         CustomInput.Register<SkysCompactCircuitsContext, SkysCompactCircuitsTrigger>(Manifest.ID);
@@ -39,7 +37,19 @@ public class SkysCompactCircuits_ClientMod : ClientMod
             }
         };
 
-        _ = SceneAndNetworkManager.MainWorld; // Runs the static init method (needed for the next line to not error out later)
-        WorldInitializationHandler.OnPacketReceived += _ => PackedCircuitManager.ExtraDataManager.SetupExtraData(Instances.MainWorld.ExtraData);
+        PackedCircuitManager.OnIndexAdded += (_, _) => throw new("Indexed data cannot be created directly by the client");
+
+        FuncPacketHandler<IndexCircuitResponsePacket>.Add(packet => PackMenu.AddToHotbar(PackedCircuitManager.Decode(packet.indexCircuitData)));
+        FuncPacketHandler<NewCircuitRegisteredPacket>.Add(packet => PackedCircuitManager.RegisterIndex(packet.index, packet.newCircuitData));
+        FuncPacketHandler<RemoveIndexedCircuitTrackingPacket>.Add(packet =>
+        {
+            PackedCircuitManager.CircuitDataByIndex.Remove(packet.indexToRemove);
+            foreach (var (_, list) in PackedCircuitManager.IndicesByHash)
+                if (list.Remove(packet.indexToRemove))
+                    return;
+        });
     }
+
+    [Command("CompactCircuits.Server.CullIndexedData")] // Just a shortcut for the console autocomplete mod.
+    public static void CullIndexedData() => SceneAndNetworkManager.RunCommandOnServer("CompactCircuits.CullIndexedData");
 }

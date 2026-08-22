@@ -4,7 +4,6 @@ using FancyInput;
 using JimmysUnityUtilities;
 using LogicAPI.Data;
 using LogicAPI.Data.BuildingRequests;
-using LogicAPI.WorldDataMutations;
 using LogicUI;
 using LogicWorld.Audio;
 using LogicWorld.Building.Overhaul;
@@ -18,8 +17,11 @@ using LogicWorld.Modding;
 using LogicWorld.Physics;
 using LogicWorld.Players;
 using LogicWorld.SharedCode.Components;
+using LogicWorld.SharedCode.PartialWorlds;
 using SkysCompactCircuits.Client.ClientCode;
+using SkysCompactCircuits.Shared;
 using SkysGeneralLib.Client.BuildRequests;
+using SkysGeneralLib.Shared;
 using UnityEngine;
 
 namespace SkysCompactCircuits.Client;
@@ -69,9 +71,11 @@ public static class Unpacking
     private static void Start()
     {
         ActiveGrabbingManager?.Dispose();
+        WorldData = PartialWorldUtilities.ConvertComponentTypes(WorldData, Instances.MainWorld.ComponentTypes);
         (ActiveGrabbingManager = new GrabbingManager()).StartPlacing(WorldData);
         GameStateManager.TriggerHelpUpdated();
     }
+    private static IPackedCircuitData CircuitData;
     private static PartialWorldData WorldData;
 
     public static void Unpack(PackedCircuit circuit)
@@ -81,11 +85,12 @@ public static class Unpacking
             SoundPlayer.PlayFail();
             GameStateManager.TransitionBackToBuildingState();
         }
+        CircuitData = circuit.Data;
         WorldData = circuit.Data.PartialWorld;
 
         // Maybe we could account for current states (maybe... that sounds hard...)
         // (especially since most of the objects dont actually exist...)
-        
+
         GameStateManager.TransitionTo(GameStateTextID);
     }
     public class GrabbingManager : IDisposable
@@ -241,10 +246,6 @@ public static class Unpacking
         public void Dispose() => Item?.Dispose();
         public void StartPlacing(PartialWorldData world)
         {
-
-            guid = Guid.NewGuid();
-            Instances.PartialWorldsManager.AddNewPartialWorldToDatabase(guid, world);
-
             PlacingGhost placingGhost = PlacingGhost.CreateForPartialWorldRoot(world, 0);
             StuffPlacer placer;
             if (CircuitBoardLikeTypes.IsCircuitBoardLikeInGhostWorld(placingGhost.GhostWorld, placingGhost.RootComponent))
@@ -264,7 +265,6 @@ public static class Unpacking
             Item.Placer.UnlockRotation();
             FinishSetup();
         }
-        Guid guid;
         private static readonly PlacementData_Standard PlacementData = (PlacementData_Standard)
             typeof(PlacementData_Standard).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)[0]//, [typeof(Vector3), typeof(Quaternion), typeof(PlacementType), typeof(bool)])
             .Invoke([Vector3.zero, Quaternion.identity, PlacementType.Unknown, false]);
@@ -272,15 +272,19 @@ public static class Unpacking
         protected void PlaceAllItems()
         {
             PlacingGhost ghost = Item.Placer.Ghost;
-            var array = new PartialWorldRootAdditionInfo
+
+            new BuildRequest_CreateSingleNewComponent(new EditableComponentData(Instances.MainWorld.ComponentTypes.GetComponentType("SkysCompactCircuits.UnpackCircuit"))
             {
-                AdditionParent = ghost.PreviousMoveAddress,
-                AdditionLocalPosition = ghost.GetLocalPosition(),
-                AdditionLocalRotation = ghost.GetLocalRotation()
-            };
+                CustomData = CircuitData.Encode(),
+                InputInfos = [],
+                OutputInfos = [],
+                Parent = ghost.PreviousMoveAddress,
+                LocalPosition = ghost.GetLocalPosition(),
+                LocalRotation = ghost.GetLocalRotation(),
+            }).Send();
+
             ghost.DeleteOnWorldUpdate();
 
-            new BuildRequest_AddPartialWorld(guid, [array], []).Send();
             GameStateManager.TransitionBackToBuildingState();
         }
     }

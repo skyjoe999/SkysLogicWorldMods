@@ -1,3 +1,4 @@
+using System.Linq;
 using LogicAPI.Data;
 using LogicWorld.SharedCode.Components;
 using UnityEngine;
@@ -21,8 +22,19 @@ public interface IPackedCircuitData
         Error = 0,
         Full = 1,
         Indexed = 2,
+        SubassemblyTracker = 3,
+        SubassemblyItem = 4,
+        Compressed = 5,
+        Modified = 6,
     }
+
     public byte[] Encode();
     public int InputCount => ComponentPrefab.Inputs.Length;
     public int OutputCount => ComponentPrefab.Outputs.Length;
+
+    public static void AcceptModes(Mode mode, params Mode[] options)
+    {
+        if (!options.Contains(mode))
+            throw new($"Found unexpected mode {mode}. (Maybe try updating the mod?)");
+    }
 }

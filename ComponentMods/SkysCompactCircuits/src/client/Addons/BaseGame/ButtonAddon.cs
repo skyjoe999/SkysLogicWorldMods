@@ -1,7 +1,6 @@
 using DG.Tweening;
 using HarmonyLib;
 using JimmysUnityUtilities;
-using LICC;
 using LogicAPI.Data;
 using LogicWorld.Audio;
 using LogicWorld.ClientCode;
@@ -43,9 +42,8 @@ public class ButtonAddon<ButtonTypes>(Color24 ButtonColor, Vector3 RawBlockScale
         public IDecoration[] GenerateDecorations(Transform parentToCreateDecorationsUnder, IWorldRenderer worldRenderer, Color24 buttonColor)
         {
             var decorations = base.GenerateDecorations(parentToCreateDecorationsUnder);
-            LConsole.WriteLine(GetRawBlockScale());
             // PanelButton
-            var offset = new Vector3(GetRawBlockScale().x * 0, -GetRawBlockScale().y, GetRawBlockScale().z * 0);
+            var offset = new Vector3(0, -GetRawBlockScale().y, 0);
             decorations[0].LocalPosition += offset;
             decorations[1].LocalPosition = DownLocalPosition + offset;
             // decorations[0].LocalPosition = default;

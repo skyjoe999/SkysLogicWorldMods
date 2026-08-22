@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
@@ -40,7 +41,8 @@ public class PackedCircuit : ComponentClientCode
         var consumedBlocks = Data.ComponentPrefab.Blocks.Length;
         foreach (var (addr, count, addon) in ClientAddonManager.GeneratorsFor(Data.PartialWorld, Data.AddonAddresses).Zip(Addons, (a, b) => (a.Address, a.Generator.GetBlockCount(a.Data), b)))
         {
-            addon.SetReference(addonMap[addr], [.. Enumerable.Range(consumedBlocks, count).Select(GetBlockEntity)]);
+            if (addonMap[addr] != default)
+                addon?.SetReference(addonMap[addr], [.. Enumerable.Range(consumedBlocks, count).Select(GetBlockEntity)]);
             consumedBlocks += count;
         }
     }
@@ -57,7 +59,8 @@ public class PackedCircuit : ComponentClientCode
     protected override void OnComponentDestroyed()
     {
         if (Setup && Data is not null)
-            Addons.Do(a => a.OnComponentDestroyed());
+            try { Addons.Do(a => a.OnComponentDestroyed()); }
+            catch (Exception exception) { Logger.Exception(exception, "Error while destroying addon"); }
     }
 
     protected override IDecoration[] GenerateDecorations(Transform parentToCreateDecorationsUnder)
@@ -82,14 +85,11 @@ public class PackedCircuit : ComponentClientCode
         return [.. allDecorations];
     }
 
-    public override byte[] SerializeCustomData() => Data.Encode();
-    protected override void DeserializeData(byte[] data) => Data = PackedCircuitManager.TryDecode(data, WhenIndexBecomesAvailable);
-
-    public void WhenIndexBecomesAvailable()
+    public override byte[] SerializeCustomData() => Data?.Encode();
+    protected override void DeserializeData(byte[] data)
     {
-        if (!PlacedInMainWorld)
-            return;
-        Instances.MainWorld.Renderer.EntityManager.ReRenderComponentAndAttachedWires(Address);
+        Data = data is not null && (!PackedCircuitManager.TryGetIndex(data, out var index) || PackedCircuitManager.IsIndexValid(index))
+            ? PackedCircuitManager.Decode(data) : null;
     }
 }
 

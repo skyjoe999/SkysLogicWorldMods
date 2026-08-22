@@ -17,7 +17,6 @@ using SkysCompactCircuits.Client.Keybindings;
 using SkysCompactCircuits.Shared;
 using SkysCompactCircuits.Shared.Packets;
 using SkysGeneralLib.Client.TypeExtensions;
-using SkysGeneralLib.Shared.Networking;
 using TMPro;
 using UnityEngine;
 
@@ -89,23 +88,15 @@ public partial class PackMenu : ToggleableSingletonMenu<PackMenu>, IAssignMyFiel
 
     public void Submit()
     {
-        if (PrefabBlocks is null || !(PrefabBlocks.Length != 0 || Circuit?.AddonAddresses?.Length != 0 || Circuit?.ExportPegs?.Length != 0))
+        if (PrefabBlocks is null || !(PrefabBlocks.Length != 0 || Circuit?.AddonAddresses?.Length != 0 || Circuit?.ExportPegs.inputs?.Length != 0 || Circuit?.ExportPegs.outputs?.Length != 0))
         {
             SoundPlayer.PlayFail();
             return;
         }
 
         // this will create some latency, deal with it
-        Instances.SendData.Send(new IndexCircuitRequestPacket() { data = GenerateData().Encode() });
+        Instances.SendData.Send(new IndexCircuitRequestPacket() { rawCircuitData = new CompressedPackedCircuitData(GenerateData()).Encode() });
         GameStateManager.TransitionBackToBuildingState();
-    }
-
-    static PackMenu() => FuncPacketHandler<IndexCircuitResponsePacket>.Add(packet => IndexAndAddToHotbar(packet.data));
-    public static void IndexAndAddToHotbar(byte[] data)
-    {
-        if (!(PackedCircuitManager.TryDecode(data, () => IndexAndAddToHotbar(data)) is { } circuit))
-            return;
-        AddToHotbar(circuit);
     }
 
     public void Render() => Renderer.RenderSubassembly(PreviewPackRender.CreatePreview(GenerateData()));
@@ -246,10 +237,10 @@ public partial class PackMenu : ToggleableSingletonMenu<PackMenu>, IAssignMyFiel
         Render();
     }
     #endregion
-    static void AddToHotbar(IPackedCircuitData data)
+    public static void AddToHotbar(IPackedCircuitData data)
     {
         var singleComponentHotbarItemData = new DetailedHotbarItemData(
-            SkysCompactCircuits_ClientMod.PackedCircuitTextID, data.Encode(),
+            "SkysCompactCircuits.PackedCircuit", data.Encode(),
             inputCount: data.InputCount,
             outputCount: data.OutputCount);
         for (var i = 0; i < Instances.Hotbar.HotbarItemsCount; i++)

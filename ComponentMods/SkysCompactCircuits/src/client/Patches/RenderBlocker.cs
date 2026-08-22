@@ -19,7 +19,7 @@ public static class RenderBlocker
     {
         var world = WorldDataAccess.Get(__instance);
         ComponentType packedCircuitType;
-        try { packedCircuitType = ComponentTypesAccess.Get(__instance).GetComponentType(SkysCompactCircuits_ClientMod.PackedCircuitTextID); }
+        try { packedCircuitType = ComponentTypesAccess.Get(__instance).GetComponentType("SkysCompactCircuits.PackedCircuit"); }
         catch (KeyNotFoundException) { return true; }
 
         if (!IsInsidePacked(componentDataManager.Data.Parent, world, packedCircuitType))
@@ -33,7 +33,7 @@ public static class RenderBlocker
     {
         var world = WorldDataAccess.Get(__instance);
         ComponentType packedCircuitType;
-        try { packedCircuitType = ComponentTypesAccess.Get(__instance).GetComponentType(SkysCompactCircuits_ClientMod.PackedCircuitTextID); }
+        try { packedCircuitType = ComponentTypesAccess.Get(__instance).GetComponentType("SkysCompactCircuits.PackedCircuit"); }
         catch (KeyNotFoundException) { return true; }
         if (!IsInsidePacked(world.Lookup(world.Lookup(wAddress).Point1.ComponentAddress).Parent, world, packedCircuitType))
             return true;

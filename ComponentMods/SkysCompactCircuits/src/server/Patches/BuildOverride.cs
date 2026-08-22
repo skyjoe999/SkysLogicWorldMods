@@ -14,6 +14,7 @@ namespace SkysCompactCircuits.Server;
 public static class BuildOverride
 {
     private static readonly ComponentType PackedCircuitType = Services.ComponentTypesManager.GetComponentType("SkysCompactCircuits.PackedCircuit");
+    private static readonly ComponentType UnpackingType = Services.ComponentTypesManager.GetComponentType("SkysCompactCircuits.UnpackCircuit");
 
     [HarmonyPatch("BuildAction_CreateSingleNewComponent", "EnumerateMutations")]
     [HarmonyPostfix]
@@ -26,10 +27,13 @@ public static class BuildOverride
         IEnumerable<WorldDataMutation> Process()
         {
             foreach (var mutation in mutations)
-                if (mutation is WorldMutation_AddSingleNewComponent asc && asc.NewComponent.Type == PackedCircuitType)
+                if (mutation is WorldMutation_AddSingleNewComponent asc && (asc.NewComponent.Type == PackedCircuitType || asc.NewComponent.Type == UnpackingType))
                 {
                     var data = PackedCircuitManager.DecodeAndIndex(asc.NewComponent.CustomData);
-                    if (PackedCircuitStructureManager.TryGetAdditionWorldGuid(data, out var guid))
+                    if (
+                        (asc.NewComponent.Type == PackedCircuitType && PackedCircuitStructureManager.TryGetAdditionWorldGuid(data, out var guid)) ||
+                        (asc.NewComponent.Type == UnpackingType && PackedCircuitStructureManager.TryGetUnpackingWorldGuid(data, out guid))
+                    )
                     {
                         yield return new WorldMutation_AddPartialWorld()
                         {
@@ -43,7 +47,6 @@ public static class BuildOverride
                                 AdditionLocalRotation = asc.NewComponent.LocalRotation,
                                 AdditionParent = asc.NewComponent.Parent,
                             }],
-
                         };
                     }
                     else

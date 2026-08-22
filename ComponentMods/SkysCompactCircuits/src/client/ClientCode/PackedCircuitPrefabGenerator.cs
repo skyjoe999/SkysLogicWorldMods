@@ -5,33 +5,24 @@ using LogicWorld.Rendering.Dynamics;
 using LogicWorld.SharedCode.Components;
 using SkysCompactCircuits.Client.Addons;
 using SkysCompactCircuits.Shared;
-using SkysGeneralLib.Shared.AccessTools;
 using UnityEngine;
 
 namespace SkysCompactCircuits.Client.ClientCode;
 
-public class PackedCircuitPrefabGenerator : DynamicPrefabGenerator<IPackedCircuitData>
+public class PackedCircuitPrefabGenerator : DynamicPrefabGenerator<Prefab>
 {
-    public readonly Dictionary<IPackedCircuitData, Prefab> Cache;
-    public PackedCircuitPrefabGenerator() => Cache = new Accessor<DynamicPrefabGenerator<IPackedCircuitData>, Dictionary<IPackedCircuitData, Prefab>>("Cache").Get(this);
 
     public override (int inputCount, int outputCount) GetDefaultPegCounts() => (0, 0);
-    protected override Prefab GeneratePrefabFor(IPackedCircuitData identifier) =>
-        identifier.ComponentPrefab.Transform(scale: Vector3.one * identifier.TransformScale).Join(PartialPrefabsFor(identifier));
-    protected override IPackedCircuitData GetIdentifierFor(ComponentData componentData)
+    protected override Prefab GeneratePrefabFor(Prefab identifier) => identifier;
+    protected static Prefab GeneratePrefabFor(IPackedCircuitData identifier) =>
+        identifier?.ComponentPrefab.Transform(scale: Vector3.one * identifier.TransformScale).Join(PartialPrefabsFor(identifier));
+    protected override Prefab GetIdentifierFor(ComponentData componentData)
     {
-        if (Cache.Count > 2) Cache.Clear(); // caching will not help us here
-        return (componentData.CustomData is not null && componentData.CustomData.Length != 0 && componentData.CustomData[0] != 0)
-            ? PackedCircuitManager.TryDecode(componentData.CustomData) ?? DefaultData : DefaultData;
+        var circuit = (componentData.CustomData is not null && componentData.CustomData.Length != 0 && componentData.CustomData[0] != 0)
+            ? PackedCircuitManager.Decode(componentData.CustomData) : null;
+        return GeneratePrefabFor(circuit) ?? DefaultData;
     }
-    public static readonly IPackedCircuitData DefaultData = new FullPackedCircuitData()
-    {
-        AddonAddresses = [],
-        ComponentPrefab = new() { Blocks = [new() { RawColor = new(0xb32ec8) }] },
-        Size = new(1, 1),
-        TransformScale = 1,
-        PartialWorld = new(new Dictionary<ushort, string>(), [], [], []),
-    };
+    public static readonly Prefab DefaultData =  new() { Blocks = [new() { RawColor = new(0xb32ec8) }] };
 
 
     public static Prefab PartialPrefabsFor(IPackedCircuitData data) =>
@@ -59,6 +50,6 @@ public class PackedCircuitPlacingRulesGenerator : DynamicPlacingRulesGenerator<V
     protected override Vector2Int GetIdentifierFor(ComponentData componentData)
     {
         return (componentData.CustomData is not null && componentData.CustomData.Length != 0 && componentData.CustomData[0] != 0)
-            ? PackedCircuitManager.TryDecode(componentData.CustomData)?.Size ?? Vector2Int.one : Vector2Int.one;
+            ? PackedCircuitManager.Decode(componentData.CustomData)?.Size ?? Vector2Int.one : Vector2Int.one;
     }
 }

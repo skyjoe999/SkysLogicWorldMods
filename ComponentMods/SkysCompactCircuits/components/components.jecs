@@ -6,33 +6,16 @@ PackedCircuit:
     prefabGenerator: SkysCompactCircuits.Client.ClientCode.PackedCircuitPrefabGenerator
     placingRulesGenerator: SkysCompactCircuits.Client.ClientCode.PackedCircuitPlacingRulesGenerator
 
-ExportPeg:
-    column: "Miscellaneous"
-    category: "Export"
-    prefab:
-        blocks:
-            -
-                scale: (0.5, 0.3, 0.5)
-                #color: 00ffc0
-        inputs:
-            -
-                position: (0, 0.3, 0)
-                length: 0.7
-                wirePointHeight: 0.35
-    placingRules:
-        primaryEdgePositions:
-            - (0.5, 0)
-        secondaryEdgePositions:
-            - (0.5, 0)
-            - (0, 0)
-            - (1, 0)
-        secondaryGridPositions:
-            - (0, 0)
-            - (1/2, 0)
-            - (1, 0)
-            - (0, 1/2)
-            - (1/2, 1/2)
-            - (1, 1/2)
-            - (0, 1)
-            - (1/2, 1)
-            - (1, 1)
+
+# These haven't been implemented but adding them now means that only the server needs to update to support these features.
+SimulationStorage:
+    prefab: # Empty
+
+# This is for the hackiest hack in this whole hacky mod (sending the circuit data initialization in the hotbar) TT
+# (technically this definition isn't even needed but I'll be nice to other mods and not send *fully* invalid data <3)
+WorldCircuitInitializationData:
+    prefab: # Empty
+
+# This is for the hackiest hack (unpacking </3)
+UnpackCircuit:
+    prefab: # Empty

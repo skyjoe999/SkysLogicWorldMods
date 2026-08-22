@@ -1,3 +1,10 @@
 ﻿SkysCompactCircuits.PackedCircuit  : "Packed Circuit"
+
 SkysCompactCircuits.ExportPeg  : "Export Peg"
+SkysCompactCircuits.ExportThroughPeg  : "Export Through Peg"
+SkysCompactCircuits.ExportBuffer  : "Export Buffer"
+SkysCompactCircuits.ExportThroughBuffer  : "Export Through Buffer"
+
 ComponentCategory.Export : "Exports"
+
+SkysCompactCircuits.SimulationStorage  : "Simulation Storage"

@@ -71,5 +71,7 @@ public static class ClientAddonManager
         RegisterAddonType("MHG.PanelButton", new PanelButtonAddonGenerator());
         RegisterAddonType("MHG.Switch", new SwitchAddonGenerator());
         RegisterAddonType("MHG.PanelSwitch", new SwitchAddonGenerator());
+        RegisterAddonType("MHG.Key", new KeyAddonGenerator());
+        RegisterAddonType("MHG.PanelKey", new KeyAddonGenerator());
     }
 }

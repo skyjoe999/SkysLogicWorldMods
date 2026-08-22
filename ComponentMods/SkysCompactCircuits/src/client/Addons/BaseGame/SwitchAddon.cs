@@ -14,11 +14,12 @@ namespace SkysCompactCircuits.Client.Addons;
 
 public class SwitchAddon(Color24 SwitchColor, bool StartOn) : SuperAddon<Switch>
 {
+    private MeshRenderer VisualSwitch;
     protected override void Initialize()
     {
         base.Initialize();
         WorldPositionRotationCalculatedAccess.Set((ComponentDataManager)Inner.Component, true);
-        WorldRotationAccess.Set((ComponentDataManager)Inner.Component, VisualSwitchAccess.Get(Inner).transform.rotation * Quaternion.Euler(StartOn ? 40f : -40f, 0f, 0f).Inverse());
+        WorldRotationAccess.Set((ComponentDataManager)Inner.Component, VisualSwitch.transform.rotation * Quaternion.Euler(StartOn ? 40f : -40f, 0f, 0f).Inverse());
         CallDataUpdate(Inner, []);
         HasBeenFullyInitializedAccess.Set(Inner, true);
     }
@@ -34,7 +35,8 @@ public class SwitchAddon(Color24 SwitchColor, bool StartOn) : SuperAddon<Switch>
         decorations[0].LocalPosition -= new Vector3(0, 0.3f, 0);
         decorations[1].LocalPosition -= new Vector3(0, 0.3f, 0);
 
-        decorations[0].DecorationObject.GetComponentInChildren<MeshRenderer>().material = WorldRendererAccess.Get(Parent).MaterialsSource.SolidColor(SwitchColor);
+        VisualSwitch = decorations[0].DecorationObject.GetComponentInChildren<MeshRenderer>();
+        VisualSwitch.material = WorldRendererAccess.Get(Parent).MaterialsSource.SolidColor(SwitchColor);
 
         // not optimal but it was causing problems... (genuinely so confused, if you think you can fix this, dm me!)
         decorations[0].DecorationObject.GetComponentInChildren<BoxCollider>().RemoveComponentImmediate<BoxCollider>();
@@ -43,12 +45,17 @@ public class SwitchAddon(Color24 SwitchColor, bool StartOn) : SuperAddon<Switch>
             decorations[0].LocalRotation = Quaternion.Euler(40f, 0f, 0f);
         return decorations;
     }
+
+    public override void OnComponentDestroyed()
+    {
+        base.OnComponentDestroyed();
+        VisualSwitch = null;
+    }
+
     private static readonly RenderedEntity DummyEntity = typeof(RenderedEntity).Constructor().Invoke(null) as RenderedEntity;
     private static readonly Func<object, object[], object> RunGenerateDecorations = typeof(Switch).Method("GenerateDecorations").Invoke;
     private static readonly Accessor<ComponentDataManager, bool> WorldPositionRotationCalculatedAccess = new("WorldPositionRotationCalculated");
     private static readonly Accessor<ComponentDataManager, Quaternion> WorldRotationAccess = new("_WorldRotation");
-    private static readonly Accessor<Switch, MeshRenderer> VisualSwitchAccess = new("VisualSwitch");
-
 }
 
 public class SwitchAddonGenerator : ClientAddonGenerator<ISwitchData>

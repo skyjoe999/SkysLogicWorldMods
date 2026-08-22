@@ -60,7 +60,7 @@ public class PreviewPackRender()
         }
         ComponentData Main()
         {
-            var _data = new ComponentData(Instances.MainWorld.ComponentTypes.GetComponentType(SkysCompactCircuits_ClientMod.PackedCircuitTextID));
+            var _data = new ComponentData(Instances.MainWorld.ComponentTypes.GetComponentType("SkysCompactCircuits.PackedCircuit"));
             var data = _data as IEditableComponentData;
             data.CustomData = circuitData.Encode();
             data.InputInfos = new InputInfo[circuitData.InputCount];

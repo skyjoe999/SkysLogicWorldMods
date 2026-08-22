@@ -21,12 +21,14 @@ public class ProtoCircuit
     public SubassemblyData SubassemblyToSave;
     public Vector2Int RootSize;
     public Color24 RootColor;
-    public ComponentInput[] ExportPegs;
+    public (ComponentInput[] inputs, ComponentOutput[] outputs) ExportPegs;
     public ComponentAddress[] AddonAddresses;
     public Block[] AllBoardBlocks;
     public Block RootBlock;
     public bool RootIsCircuitBoard; // should be, but it might be some other subclass
     public IPackedCircuitData[] InnerDatas;
+
+    public static readonly Dictionary<string, bool> ExportPegIDIsOutput = new() { ["SkysCompactCircuits.ExportPeg"] = false, ["SkysCompactCircuits.ExportThroughPeg"] = false, ["SkysCompactCircuits.ExportThroughBuffer"] = true };
 
     public ProtoCircuit(ComponentAddress board)
     {
@@ -35,10 +37,10 @@ public class ProtoCircuit
         RootColor = boardData.Color;
         RootBlock = new() { Scale = new(RootSize.x, 0.5f, RootSize.y), RawColor = RootColor };
 
+        SubassemblyFix.DontConvertNext = true;
         SubassemblyToSave = SubassembliesManager.CreateSubassemblyDataFromSelection(new([board]));
 
-        // The PlacementType part is to account for a bug, when/if it gets fixed, this will then be broken </3 (Just remove it and only check for flipped)
-        try { if (PlacementUtilities.GetPlacementData(board) is PlacementData_Standard pd && (pd.Flipped != (pd.PlacementType == PlacementType.OnFixedPlacementPoint))) UnFlipSubassembly(ref SubassemblyToSave, RootSize); }
+        try { if (PlacementUtilities.GetPlacementData(board) is PlacementData_Standard pd && pd.Flipped) UnFlipSubassembly(ref SubassemblyToSave, RootSize); }
         catch (Exception) { }
 
         (SubassemblyToSave.PartialWorldData.OrderedComponentsAndAddresses[0].componentData as IEditableComponentData).LocalPosition = Vector3.zero;
@@ -48,13 +50,20 @@ public class ProtoCircuit
         var boardType = SubassemblyToSave.PartialWorldData.OrderedComponentsAndAddresses[0].componentData.Type;
         RootIsCircuitBoard = SubassemblyToSave.PartialWorldData.ComponentIDsMap[boardType.NumericID] == "MHG.CircuitBoard";
 
-        ExportPegs = SubassemblyToSave.PartialWorldData.ComponentIDsMap.Where(p => p.Value == "SkysCompactCircuits.ExportPeg").Aggregate((ushort?)null, (_, v) => v.Key) is ushort ExportPegID
-                ? [.. ClientAddonManager.TransformsFor(SubassemblyToSave.PartialWorldData)
-                    .Where(c => c.data.Type.NumericID == ExportPegID)
+        var inverseWorldIDMap = SubassemblyToSave.PartialWorldData.ComponentIDsMap.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
+        var exportPegIDIsOutput = ExportPegIDIsOutput
+            .Where(kvp => inverseWorldIDMap.ContainsKey(kvp.Key))
+            .ToDictionary(kvp => inverseWorldIDMap[kvp.Key], kvp => kvp.Value);
+        var rootExports = ClientAddonManager.TransformsFor(SubassemblyToSave.PartialWorldData)
                     .Where(c => !innerCircuitsAndChildren.Contains(c.address))
-                    .Select(c => new ComponentInput() { Position = c.position, Rotation = c.rotation.eulerAngles, Length = 2 / 3f })
-                ]
-                : [];
+                    .Where(c => exportPegIDIsOutput.ContainsKey(c.data.Type.NumericID))
+                    .ToList();
+        ExportPegs = (
+            inputs: [.. rootExports.Where(c => !exportPegIDIsOutput[c.data.Type.NumericID])
+                .Select(c => new ComponentInput() { Position = c.position, Rotation = c.rotation.eulerAngles, Length = 2 / 3f })],
+            outputs: [.. rootExports.Where(c => exportPegIDIsOutput[c.data.Type.NumericID])
+                .Select(c => new ComponentOutput() { Position = c.position, Rotation = c.rotation.eulerAngles})]
+        );
 
         AddonAddresses = [..
             ClientAddonManager.GeneratorsFor(SubassemblyToSave.PartialWorldData)
@@ -95,12 +104,11 @@ public class ProtoCircuit
         var inputOffset = (new Vector3(-0.5f, 0, -0.5f) + addonOffset) / scale;
 
         var componentPrefab = new Prefab { Blocks = blocks }.Transform(position: blockOffset + additionalOffset)
-                .Join(new Prefab { Inputs = ExportPegs }.Transform(position: inputOffset + additionalOffset));
+                .Join(new Prefab { Inputs = ExportPegs.inputs, Outputs = ExportPegs.outputs }.Transform(position: inputOffset + additionalOffset));
 
-        return new()
+        return new(SubassemblyToSave.PartialWorldData)
         {
             ComponentPrefab = componentPrefab,
-            PartialWorld = SubassemblyToSave.PartialWorldData,
             Size = size,
             TransformOffset = new Vector3(-0.5f, 0, -0.5f) + addonOffset + additionalOffset * scale,
             TransformScale = scale,

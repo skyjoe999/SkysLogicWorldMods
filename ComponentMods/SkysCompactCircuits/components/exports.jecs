@@ -1,0 +1,165 @@
+ExportPeg:
+    column: "Miscellaneous"
+    category: "Export"
+    prefab:
+        blocks:
+            -
+                scale: (0.5, 0.3, 0.5)
+                #color: 00ffc0
+        inputs:
+            -
+                position: (0, 0.3, 0)
+                length: 0.7
+                wirePointHeight: 0.35
+    placingRules:
+        primaryEdgePositions:
+            - (0.5, 0)
+        secondaryEdgePositions:
+            - (0.5, 0)
+            - (0, 0)
+            - (1, 0)
+        secondaryGridPositions:
+            - (0, 0)
+            - (1/2, 0)
+            - (1, 0)
+            - (0, 1/2)
+            - (1/2, 1/2)
+            - (1, 1/2)
+            - (0, 1)
+            - (1/2, 1)
+            - (1, 1)
+
+ExportThroughPeg:
+    column: "Miscellaneous"
+    category: "Export"
+    prefab:
+        blocks:
+            -
+                position: (0, -0.25, 0)
+                scale: (0.5, 0.55, 0.5)
+                mesh: BetterCube_OpenBottom
+
+                # the collider is for the top of the component, away from the open bottom
+                colliderData:
+                    transform:
+                        position: (0, 25/55, 0)
+                        scale: (1, 30/55, 1)
+
+            -
+                position: (0, -0.25, 0)
+                rotation: (180, 0, 0)
+                scale: (0.5, 0.55, 0.5)
+                mesh: BetterCube_OpenBottom
+                color: A9A9A9
+
+                colliderData:
+                    transform:
+                        position: (0, 25/55, 0)
+                        scale: (1, 30/55, 1)
+        inputs:
+            -
+                length: 0.7
+                position: (0, 0.3, 0)
+                wirePointHeight: 0.35
+            -
+                length: 0.7
+                position: (0, -0.8, 0)
+                rotation: (180, 0, 0)
+    logicCode: LogicWorld.LogicCode.ThroughPeg
+    placingRules:
+        canBeFlipped: true
+        secondaryGridPositions:
+            - (0, 0)
+            - (1/2, 0)
+            - (1, 0)
+            - (0, 1/2)
+            - (1/2, 1/2)
+            - (1, 1/2)
+            - (0, 1)
+            - (1/2, 1)
+            - (1, 1)
+
+# This fully works, I just hate the design and can't come up with a better one...
+# (So be warned, you can enable this but I very much might change the components design later)
+ExportBuffer:
+    #column: "Miscellaneous" 
+    #category: "Export"
+    prefab:
+        blocks:
+            -
+                position: (0, 0, 0.25)
+                scale: (2/3, 0.3, 1/2)
+                rotation: (0, 180, 0)
+                mesh: BufferBody_Long
+        inputs:
+            -
+                length: 0.7
+                position: (0, 0.4, 0.3)
+        outputs:
+            -
+                position: (0, 0.3, -2/12)
+                rotation: (-15, 0, 0)
+    logicCode: SkysCompactCircuits.Server.ExportBuffer
+    placingRules:
+        primaryEdgePositions:
+            - (0.5, 0)
+        secondaryEdgePositions:
+            - (0.5, 0)
+            - (0, 0)
+            - (1, 0)
+        secondaryGridPositions:
+            - (0, 0)
+            - (1/2, 0)
+            - (1, 0)
+            - (0, 1/2)
+            - (1/2, 1/2)
+            - (1, 1/2)
+            - (0, 1)
+            - (1/2, 1)
+            - (1, 1)
+
+ExportThroughBuffer:
+    column: "Miscellaneous"
+    category: "Export"
+    prefab:
+        blocks:
+            -
+                position: (0, -0.25, 0)
+                scale: (2/3, 0.55, 2/3)
+                colliderData:
+                    transform:
+                        position: (0, 25/55, 0)
+                        scale: (1, 30/55, 1)
+
+            -
+                position: (0, -0.25, 0)
+                rotation: (180, 0, 0)
+                scale: (0.5, 0.55, 0.5)
+                mesh: BetterCube_OpenBottom
+                color: A9A9A9
+
+                colliderData:
+                    transform:
+                        position: (0, 25/55, 0)
+                        scale: (1, 30/55, 1)
+        inputs:
+            -
+                length: 0.7
+                position: (0, -0.8, 0)
+                rotation: (180, 0, 0)
+        outputs:
+            -
+                position: (0, 0.3, 0)
+    logicCode: SkysCompactCircuits.Server.ExportBuffer
+    placingRules:
+        canBeFlipped: true
+        secondaryGridPositions:
+            - (0, 0)
+            - (1/2, 0)
+            - (1, 0)
+            - (0, 1/2)
+            - (1/2, 1/2)
+            - (1, 1/2)
+            - (0, 1)
+            - (1/2, 1)
+            - (1, 1)

@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using HarmonyLib;
 using JECS;
+using LICC;
 using LogicAPI.Data;
 using LogicAPI.Server;
 using LogicAPI.Server.Components;
@@ -28,10 +30,33 @@ public class SkysCompactCircuits_ServerMod : ServerMod
 
         RegisterKnownExcludedTypes();
 
+        PackedCircuitManager.OnIndexAdded += (index, data) =>
+        {
+            // In theory maybe we could do something fancy by only appending but for now this is fine.
+            PackedCircuitFileManager.AppendNewIndex(index, data);
+            Services.NetworkServer.Broadcast(new NewCircuitRegisteredPacket() { index = index, newCircuitData = data });
+        };
+
         FuncPacketHandler<IndexCircuitRequestPacket>.Add((packet, connection, _) =>
-            Services.NetworkServer.Send(connection, new IndexCircuitResponsePacket() { data = PackedCircuitManager.DecodeAndIndex(packet.data).Encode() })
-        );
+        {
+            byte[] result = [];
+            try
+            {
+                if (packet.rawCircuitData is null || packet.rawCircuitData.Length == 0)
+                    throw new($"Packet data {(packet.rawCircuitData is null ? "null" : "empty")}");
+                IPackedCircuitData.AcceptModes((IPackedCircuitData.Mode)packet.rawCircuitData[0], IPackedCircuitData.Mode.Full, IPackedCircuitData.Mode.Compressed);
+
+                var rawCircuit = PackedCircuitManager.Decode(packet.rawCircuitData);
+                ModifiedIndexResolver.ConsolidateModified(ref rawCircuit);
+
+                result = PackedCircuitManager.DecodeAndIndex(rawCircuit).Encode();
+            }
+            catch (Exception exception) { Logger.Exception(exception, $"Encounter exception while processing {nameof(IndexCircuitRequestPacket)}"); }
+
+            Services.NetworkServer.Send(connection, new IndexCircuitResponsePacket() { indexCircuitData = result });
+        });
     }
+
     public static void RegisterKnownExcludedTypes()
     {
         PackedCircuitStructureManager.RegisterExcludedType("MHG.Peg");
@@ -42,11 +67,19 @@ public class SkysCompactCircuits_ServerMod : ServerMod
         PackedCircuitStructureManager.RegisterExcludedType("MHG.PanelLabel");
         PackedCircuitStructureManager.RegisterExcludedType("MHG.Mount");
         PackedCircuitStructureManager.RegisterExcludedType("MHG.CircuitBoard");
+
+        PackedCircuitStructureManager.RegisterExcludedType("SkysCompactCircuits.PackedCircuit"); // if it's empty
+        PackedCircuitStructureManager.RegisterExcludedType("SkysCompactCircuits.SimulationStorage"); // not implemented
+
         // Known modded components
         PackedCircuitStructureManager.RegisterExcludedType("HoverPads.HoverPad");
         PackedCircuitStructureManager.RegisterExcludedType("SkysWirelessBus.WirelessBus");
         PackedCircuitStructureManager.RegisterExcludedType("BoardPegs.BoardPeg");
         PackedCircuitStructureManager.RegisterExcludedType("BoardPegs.BoardPegWalled");
+        PackedCircuitStructureManager.RegisterExcludedType("MorePegs.BoardPeg");
+        PackedCircuitStructureManager.RegisterExcludedType("LWGlass.Glass");
+        PackedCircuitStructureManager.RegisterExcludedType("EcconiaCPUServerComponents.FlatKey");
+
         // Sockets </3 (Not sure if I can do anything with these yet...)
         PackedCircuitStructureManager.RegisterExcludedType("MHG.Socket");
         PackedCircuitStructureManager.RegisterExcludedType("MHG.ChubbySocket");
@@ -54,65 +87,97 @@ public class SkysCompactCircuits_ServerMod : ServerMod
         PackedCircuitStructureManager.RegisterExcludedType("MHG.ChubbyThroughSocket");
         PackedCircuitStructureManager.RegisterExcludedType("LabelSockets.LabelSocket");
         PackedCircuitStructureManager.RegisterExcludedType("LabelSockets.ChubbyLabelSocket");
+
+        // These should only be included on the root level
+        PackedCircuitStructureManager.RegisterExcludedType("SkysCompactCircuits.ExportPeg");
+        PackedCircuitStructureManager.RegisterExcludedType("SkysCompactCircuits.ExportThroughPeg");
+
+        // All addons should be skipped if not acting as an addon
+        PackedCircuitStructureManager.RegisterExcludedType("MHG.StandingDisplay");
+        PackedCircuitStructureManager.RegisterExcludedType("MHG.PanelDisplay");
+        PackedCircuitStructureManager.RegisterExcludedType("MHG.Button");
+        PackedCircuitStructureManager.RegisterExcludedType("MHG.PanelButton");
+        PackedCircuitStructureManager.RegisterExcludedType("MHG.Switch");
+        PackedCircuitStructureManager.RegisterExcludedType("MHG.PanelSwitch");
+        PackedCircuitStructureManager.RegisterExcludedType("MHG.PanelSwitch");
+        PackedCircuitStructureManager.RegisterExcludedType("MHG.PanelKey");
+        PackedCircuitStructureManager.RegisterExcludedType("MHG.Key");
     }
+
 
     private static readonly ILogicLogger CullLogger = LogicLogger.For("SkysCompactCircuits.Culling");
 
     // This will break things if components are currently being cloned / are in the undo history / etc.
     [HarmonyPatch(typeof(SaveManager), "ReloadActiveSave")]
     [HarmonyPostfix]
+    [Command("CompactCircuits.CullIndexedData")]
     public static void CullIndexedData()
     {
-        if (!PackedCircuitManager.ExtraDataManager.ExtraData.HasData)
-        {
-            PackedCircuitManager.ExtraDataManager.ExtraData.RunAsSoonAsDataAvailable(_ => CullIndexedData());
-            return;
-        }
-
         CullLogger.Trace($"Trying Culling starting with {PackedCircuitManager.CircuitDataByIndex.Count} circuits");
 
         var components = Services.ICircuitryManager is CircuitryManager manager
             ? new Accessor<CircuitryManager, Dictionary<ComponentAddress, LogicComponent>>("LogicComponents").Get(manager).Values
             : Services.IWorldData.AllComponents.Select(p => Services.ICircuitryManager.LookupComponent(p.Key)); // slower but technically correct
 
-        var UsedIndices = new HashSet<int>();
+        var usedIndices = new HashSet<int>();
+        var extraIndices = new Queue<int>();
         foreach (var component in components)
             if (component is PackedCircuit circuit && circuit.Data is not null)
-                UsedIndices.Add(circuit.Data.Index);
+                usedIndices.Add(circuit.Data.Index);
         foreach (var item in GetAllHotbarDatas().SelectMany(hotbar => hotbar?.HotbarItems ?? []))
             if (item is DetailedHotbarItemData detailed && detailed.TextID == "SkysCompactCircuits.PackedCircuit")
             {
-                var circuit = PackedCircuitManager.TryDecode(detailed.CustomData);
+                var circuit = PackedCircuitManager.Decode(detailed.CustomData);
                 if (circuit is null)
                     continue; // this means the index was not found, this should never happen, but if it does theres no sense worrying here
                 if (circuit is IndexedPackedCircuitData indexed)
-                    if (!UsedIndices.Add(indexed.Index))
+                    if (!usedIndices.Add(indexed.Index))
                         continue; // if we already found it all its children should be loaded too
 
-                // we need to find all the inner circuits too in case they aren't placed in the world
-                if (circuit.PartialWorld.ComponentIDsMap.Where(p => p.Value == "SkysCompactCircuits.PackedCircuit").Aggregate((ushort?)null, (_, v) => v.Key) is ushort CircuitID)
-                    foreach (var (_, componentData) in circuit.PartialWorld.OrderedComponentsAndAddresses)
-                        if (componentData.Type.NumericID == CircuitID && PackedCircuitManager.TryDecode(componentData.CustomData) is IndexedPackedCircuitData innerIndexed)
-                            UsedIndices.Add(innerIndexed.Index);
+                ProcessInner(circuit);
             }
 
-        if (PackedCircuitManager.CircuitDataByIndex.Count == UsedIndices.Count)
+        // We cannot assume an inner world will contain all its inner-inner dependencies.
+        while (extraIndices.TryDequeue(out var index))
+            if (usedIndices.Add(index))
+                ProcessInner(PackedCircuitManager.LookupIndexed(index));
+
+
+        if (PackedCircuitManager.CircuitDataByIndex.Count == usedIndices.Count)
             return; // Yay! Nothing to cull! ^^
 
-        CullLogger.Trace("Culling circuits with ids " + PackedCircuitManager.CircuitDataByIndex.Keys.Except(UsedIndices).Select(i => i + "").Aggregate());
-        PackedCircuitManager.CircuitDataByIndex.Keys.Except(UsedIndices).Do(i => PackedCircuitManager.CircuitDataByIndex.Remove(i));
-        PackedCircuitManager.ExtraDataManager.WriteToExtraData(checkSize: false);
+        CullLogger.Info("Culling circuits with ids " + PackedCircuitManager.CircuitDataByIndex.Keys.Except(usedIndices).Select(i => i + "").Aggregate());
+        foreach (var index in PackedCircuitManager.CircuitDataByIndex.Keys.Except(usedIndices))
+        {
+            PackedCircuitManager.CircuitDataByIndex.Remove(index);
+            Services.NetworkServer.Broadcast(new RemoveIndexedCircuitTrackingPacket() { indexToRemove = index });
+        }
+        PackedCircuitFileManager.WriteToDisk();
 
         // but now the hash lookups are wrong, easiest solution is to just reload everything
-        PackedCircuitManager.ExtraDataManager.ReadFromExtraData();
+        PackedCircuitFileManager.ReadFromDisk();
         // (these are also out of date (if they somehow exist at all))
         PackedCircuitStructureManager.StructuresByIndex.Clear();
-        PackedCircuitStructureManager.AdditionWorldsByGuid.Clear();
+        PackedCircuitStructureManager.ExtraWorldsByGuid.Clear();
+
+        // we need to find all the inner circuits too in case they aren't placed in the world
+        void ProcessInner(IPackedCircuitData circuit)
+        {
+            if (circuit?.PartialWorld.ComponentIDsMap.Where(p => p.Value == "SkysCompactCircuits.PackedCircuit").Aggregate((ushort?)null, (_, v) => v.Key) is ushort CircuitID)
+                foreach (var (_, componentData) in circuit.PartialWorld.OrderedComponentsAndAddresses)
+                    if (componentData.Type.NumericID == CircuitID && PackedCircuitManager.TryGetIndex(componentData.CustomData, out var index))
+                        extraIndices.Enqueue(index);
+        }
     }
 
     [HarmonyPatch(typeof(SaveManager), "ReloadActiveSave")]
     [HarmonyPrefix]
-    public static void SetupExtraData() => PackedCircuitManager.ExtraDataManager.SetupExtraData(Services.ExtraData);
+    public static void OnSaveLoad()
+    {
+        PackedCircuitFileManager.TryConvertLegacyFiles();
+        PackedCircuitFileManager.ReadFromDisk();
+    }
+
     public static IEnumerable<HotbarData> GetAllHotbarDatas()
     {
         var dir = new DirectoryInfo(Path.Combine(Services.ISaveManager.ActiveSaveDirectory, "players"));
