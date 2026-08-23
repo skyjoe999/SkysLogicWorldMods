@@ -108,12 +108,11 @@ public static class AutoClusterConverter
 
     [HarmonyPatch(typeof(Cluster), nameof(Cluster.RemoveTwoWayLinkWith))]
     [HarmonyPrefix]
-    public static bool RemoveTwoWayLinkWith(Cluster __instance, Cluster other)
+    public static void RemoveTwoWayLinkWith(Cluster __instance, Cluster other)
     {
         if (__instance is not SuperCluster sInst || other is not SuperCluster sOther)
-            return true;
+            return;
 
         sInst.RemoveSuperTwoWayLinkWith(sOther);
-        return true;
     }
 }

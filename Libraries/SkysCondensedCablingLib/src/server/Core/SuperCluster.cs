@@ -56,11 +56,24 @@ public class SuperCluster : Cluster
         {
             // These will be re-added by the cluster factory since these pegs are about to be deleted.
             foreach (var link in peg.PhasicLinks?.Duplicate() ?? [])
-                peg.RemovePhasicLinkWith(link);
-            foreach (var followers in peg.OneWayPhasicLinksFollowers?.Duplicate() ?? [])
-                peg.RemoveOneWayPhasicLinkTo(followers);
-            foreach (var leaders in peg.OneWayPhasicLinksLeaders?.Duplicate() ?? [])
-                leaders.RemoveOneWayPhasicLinkTo(peg);
+                // We need to check the cluster null-ness because LW doesn't clean up phasic links when destroying pegs.
+                // (Hopefully these changes can be reverted after that's fixed)
+                if (link.Cluster is not null)
+                    peg.RemovePhasicLinkWith(link);
+                else
+                    link._PhasicLinks.Remove(peg);
+
+            foreach (var follower in peg.OneWayPhasicLinksFollowers?.Duplicate() ?? [])
+                if (follower.Cluster is not null)
+                    peg.RemoveOneWayPhasicLinkTo(follower);
+                else
+                    follower._OneWayPhasicLinksLeaders.Remove(peg);
+
+            foreach (var leader in peg.OneWayPhasicLinksLeaders?.Duplicate() ?? [])
+                if (leader.Cluster is not null)
+                    leader.RemoveOneWayPhasicLinkTo(peg);
+                else
+                    leader._OneWayPhasicLinksFollowers.Remove(peg);
         }
 
         foreach (var cluster in States.PartialClusters)
