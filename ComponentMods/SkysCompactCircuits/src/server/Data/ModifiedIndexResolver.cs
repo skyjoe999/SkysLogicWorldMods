@@ -113,7 +113,9 @@ public static class ModifiedIndexResolver
         foreach (var (key, value) in addition.ComponentIDsMap)
         {
             var newKey = key;
-            if (!idMap.Forwards.Values.Contains(value))
+            if (idMap.Backwards.TryGetValue(value, out var existing))
+                newKey = existing;
+            else
                 idMap[idMap.ContainsKey(key) ? newKey = nextType++ : key] = value;
             oldComponentTypeToNew[new(key)] = new(newKey);
         }
