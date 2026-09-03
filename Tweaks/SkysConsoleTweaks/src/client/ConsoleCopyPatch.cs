@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Reflection.Emit;
 using FancyPantsConsole;
 using HarmonyLib;
+using LogicLog;
+using LogicWorld.Logging;
 
 namespace SkysConsoleTweaks.Client;
 
@@ -9,21 +11,19 @@ namespace SkysConsoleTweaks.Client;
 // Remove the stack trace when copying from the clipboard.
 public static class ConsoleCopyPatch
 {
-    [HarmonyPatch(typeof(Message), "CopyMessageToClipboard")]
+    [HarmonyPatch(typeof(LoggerToFancyPantsConsole), nameof(LoggerToFancyPantsConsole.Log), [typeof(string), typeof(string), typeof(LogLevel)])]
     [HarmonyTranspiler]
     public static IEnumerable<CodeInstruction> CopyMessageToClipboardPatch(IEnumerable<CodeInstruction> instructions)
     {
-        // This is the field that contains the stack trace.
-        var field = typeof(Message).Assembly.GetType("FancyPantsConsole.MessageData").Field("messageExtraText");
+        var method = typeof(IConsole).Method("CreateDefaultColoredMessage");
         foreach (var instruction in instructions)
         {
-            if (instruction.LoadsField(field)) // When it would be loaded.
+            if (instruction.Calls(method)) // Just before we call the method to create the message.
             {
-                yield return new(OpCodes.Pop); // just drop the extra reference to message data.
+                yield return new(OpCodes.Pop); // just drop the stacktrace.
                 yield return new(OpCodes.Ldstr, ""); // and load a blank string instead.
             }
-            else
-                yield return instruction;
+            yield return instruction;
         }
     }
 }
